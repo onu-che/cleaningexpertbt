@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section-wrap">
+  <div class="card">
+    <h1 class="title">Book a Cleaning Service</h1>
+    <p class="subtitle">Get a fast quote and secure a time that suits you.</p>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <form method="post" class="booking-grid" id="bookingForm">
+      {% csrf_token %}
+
+      <div class="field">
+        {{ form.full_name.label_tag }} {{ form.full_name }}
+      </div>
+      <div class="field">
+        {{ form.email.label_tag }} {{ form.email }}
+      </div>
+      <div class="field">
+        {{ form.phone.label_tag }} {{ form.phone }}
+      </div>
+
+      <div class="field span-2">
+        {{ form.address_line.label_tag }} {{ form.address_line }}
+      </div>
+      <div class="field">
+        {{ form.suburb.label_tag }} {{ form.suburb }}
+      </div>
+      <div class="field">
+        {{ form.state.label_tag }} {{ form.state }}
+      </div>
+      <div class="field">
+        {{ form.postcode.label_tag }} {{ form.postcode }}
+      </div>
+
+      <div class="field">
+        {{ form.service.label_tag }} {{ form.service }}
+      </div>
+      <div class="field">
+        {{ form.preferred_date.label_tag }} {{ form.preferred_date }}
+      </div>
+      <div class="field">
+        {{ form.preferred_time.label_tag }} {{ form.preferred_time }}
+        <small class="subtitle" style="display:block;margin-top:4px;">
+            Format: HH:MM (e.g., 06:00)
+        </small>
+      </div>
+
+      <div class="field span-2">
+        {{ form.additional_details.label_tag }} {{ form.additional_details }}
+      </div>
+
+      <button type="submit" class="btn-primary span-2">Submit Booking</button>
+    </form>
+
+    {% if form.errors %}
+      <div class="form-errors">
+        <strong>Please fix the errors below:</strong>
+        {{ form.errors }}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Page micro-animations -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.gsap) {
+      gsap.from(".card", {y: 18, opacity: 0, duration: 0.5, ease: "power2.out"});
+      gsap.from(".field", {opacity: 0, y: 8, duration: 0.35, stagger: 0.05, delay: 0.2});
+    }
+  });
+</script>
+{% endblock %}

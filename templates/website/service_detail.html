@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ svc.seo_title|default:svc.name }} | B&T Bright Spotless{% endblock %}
+{% block meta_description %}{{ svc.seo_description|default:svc.short_blurb|default:svc.description|truncatechars:155 }}{% endblock %}
+{% block canonical %}/services/{{ svc.slug }}/{% endblock %}
+{% block og_url %}/services/{{ svc.slug }}/{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* keep empty: styles come from app.css additions below */
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="svc-hero">
+  <div class="svc-hero-media">
+    {% if svc.hero_image %}
+      <img src="{{ svc.hero_image }}" alt="{{ svc.name }}" loading="eager" decoding="async">
+    {% else %}
+      <img src="{% static 'images/placeholder-hero.jpg' %}" alt="{{ svc.name }}" loading="eager" decoding="async">
+    {% endif %}
+  </div>
+
+  <!-- Glass pane overlaps the image -->
+  <div class="svc-hero-pane">
+    <h1 class="svc-hero-title">{{ svc.name }}</h1>
+    <p class="svc-hero-blurb">
+      {{ svc.short_blurb|default:svc.description|default:"Professional, reliable and thorough cleaning."|truncatechars:200 }}
+    </p>
+    <div class="svc-hero-meta">
+      <span><strong>From:</strong> ${{ svc.base_price }}</span>
+      <span>•</span>
+      <span><strong>Typical duration:</strong> {{ svc.duration_minutes }} mins</span>
+    </div>
+    <!-- <div class="svc-hero-cta">
+      <a href="/booking/?service={{ svc.id }}" class="btn-primary">Book Now</a>
+      <a href="/contact/?subject=Quote" class="btn-outline">Ask a Question</a>
+    </div> -->
+  </div>
+</section>
+
+<!-- INCLUSIONS + ABOUT -->
+<section class="svc-body wrap">
+  <div class="svc-columns">
+    <article class="svc-main panel">
+      {% if inclusions %}
+        <h2 class="svc-h2">What’s included</h2>
+        <ul class="incl-grid">
+          {% for item in inclusions %}
+            <li class="incl-item">{{ item }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if svc.description %}
+        <h2 class="svc-h2">About this service</h2>
+        <p>{{ svc.description }}</p>
+      {% endif %}
+    </article>
+
+    <aside class="svc-aside panel">
+      <div class="trust-strip" style="display:flex;gap:20px;justify-content:space-between;align-items:center;margin-bottom:24px;">
+        <div class="trust">
+          <!-- Police-checked -->
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11-3.2-1.3-7-6-7-11V5l7-3z"/><path fill="#10b981" d="M10.5 12.7l-1.8-1.8-1.2 1.2 3 3 5-5-1.2-1.2z"/></svg>
+          Police-checked
+        </div>
+        <div class="trust">
+          <!-- Insured -->
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11-3.2-1.3-7-6-7-11V5l7-3z"/><path fill="#3b82f6" d="M7 12h10v2H7zM7 15h7v2H7z"/></svg>
+          Fully insured
+        </div>
+        <div class="trust">
+          <!-- Eco -->
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#22c55e" d="M12 21c-4.4 0-8-3.6-8-8 0-4.7 3.9-8.7 10.6-9.9 1.3-.2 2.3 1.1 1.8 2.3C15.7 7.3 14 11 14 13.5c0 2.3 1.3 4.9 3.6 6.8A7.97 7.97 0 0 1 12 21z"/><path fill="currentColor" d="M5 13c2.5-1.2 5.1-1.7 7.9-1.6-1.7 1.1-3.2 2.7-4.2 4.6-.4.7-1.3.9-2 .6-.8-.4-1.3-1.4-1.7-3.6z"/></svg>
+          Eco options
+        </div>
+      </div>
+
+      <div class="aside-cta">
+        <a href="/booking/?service={{ svc.id }}" class="btn-primary" style="width:100%;justify-content:center">Book Now</a>
+        <a href="/contact/?subject=Quote" class="btn-outline aside-cta-btn"></a>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="vertical-align:middle;margin-right:8px;">
+            <path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="8" width="18" height="10" rx="2" fill="#f3f4f6" stroke="#3b82f6" stroke-width="2"/>
+            <path d="M3 8l9 5 9-5" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Get a Quote
+        </a>
+          </div>
+
+          <div class="aside-meta" style="background:#f9fafb;border-radius:8px;padding:12px 16px;margin-top:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);font-size:0.95em;">
+        <p style="margin:0 0 4px 0;color:#64748b;"><strong>Service ID:</strong> <span style="color:#0ea5e9;">{{ svc.id }}</span></p>
+        <p style="margin:0;color:#64748b;"><strong>ABN:</strong> <span style="color:#0ea5e9;">42 244 371 365</span></p>
+          </div>
+    </aside>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "{{ svc.name|escapejs }}",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "B&T Bright Spotless Cleaning Services",
+    "image": "{% if svc.hero_image %}{{ svc.hero_image }}{% else %}{% static 'images/placeholder-hero.jpg' %}{% endif %}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "103 little road",
+      "addressLocality": "Yagoona",
+      "addressRegion": "NSW",
+      "postalCode": "2199",
+      "addressCountry": "Australia"
+    },
+    "telephone": "(043) 132-0507",
+    "email": "fortulacacocktail@gmail.com",
+    "taxID": "ABN 42 244 371 365"
+  },
+  "description": "{{ svc.seo_description|default:svc.short_blurb|default:svc.description|truncatechars:160|escapejs }}",
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "AUD",
+    "price": "{{ svc.base_price }}",
+    "url": "{{ request.build_absolute_uri }}"
+  }
+}
+</script>
+{% endblock %}
+

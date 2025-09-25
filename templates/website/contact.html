@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact B&T Bright Spotless (Sydney){% endblock %}
+
+{% block extra_css %}
+<style>
+  .contact-wrap{max-width:1200px;margin:0 auto;padding:clamp(20px,5vw,48px) 16px}
+  .contact-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:18px}
+  @media (max-width:960px){.contact-grid{grid-template-columns:1fr}}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(17,37,84,.06)}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-weight:700;margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fbfcfe}
+  .field textarea{min-height:130px;resize:vertical}
+  .btn-primary{display:inline-block}
+  .info p{margin:.3rem 0}
+  .map{border:0;width:100%;height:280px;border-radius:12px}
+  .alert{margin:10px 0 14px;border:1px solid #b8e1c7;background:#ecfff3;color:#136b2b;padding:10px 12px;border-radius:10px}
+  .errors{margin:10px 0;border:1px solid #ffd9d9;background:#fff6f6;color:#a21515;padding:10px 12px;border-radius:10px}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-wrap">
+  <h1 class="title">Contact Us</h1>
+  <p class="subtitle">We’ll respond quickly, usually within the same business day.</p>
+
+  {% if sent %}
+    <div class="alert">Thanks! Your message has been sent.</div>
+  {% endif %}
+  {% if form.errors %}
+    <div class="errors"><strong>Please fix the errors below:</strong> {{ form.errors }}</div>
+  {% endif %}
+
+  <div class="contact-grid">
+    <div class="panel">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.website }} {# honeypot #}
+
+        <div class="field">{{ form.name.label_tag }} {{ form.name }}</div>
+        <div class="field">{{ form.email.label_tag }} {{ form.email }}</div>
+        <div class="field">{{ form.phone.label_tag }} {{ form.phone }}</div>
+        <div class="field">{{ form.subject.label_tag }} {{ form.subject }}</div>
+        <div class="field">{{ form.message.label_tag }} {{ form.message }}</div>
+
+        <button type="submit" class="btn-primary">Send Message</button>
+        <a href="tel:+61431320507" class="btn-outline" style="margin-left:8px">Call (043) 132-0507</a>
+      </form>
+    </div>
+
+    <aside class="panel info">
+      <h3>Business Info</h3>
+      <p><strong>Phone:</strong> <a href="tel:+61431320507">(043) 132-0507</a></p>
+      <p><strong>Email:</strong> <a href="mailto:benjiecleaning@outlook.com">benjiecleaning@outlook.com</a></p>
+      <p><strong>Address:</strong> 103 little road, Yagoona, NSW 2199</p>
+      <p><strong>Hours:</strong> Mon–Sat 8:00–18:00</p>
+      <div style="margin-top:10px">
+        <iframe class="map"
+          src="https://www.google.com/maps?q=103+little+road,+Yagoona,+NSW,+2199&output=embed"
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

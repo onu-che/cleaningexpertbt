@@ -1,0 +1,150 @@
+{% load static %}
+
+<div class="iq-wrap">
+  <!-- Step head -->
+  <div class="iq-steps">
+    <span class="{% if step >= 1 %}on{% endif %}">1. Service</span> →
+    <span class="{% if step >= 2 %}on{% endif %}">2. Details</span> →
+    <span class="{% if step >= 3 %}on{% endif %}">3. Frequency</span> →
+    <span class="{% if step >= 4 %}on{% endif %}">4. Contact</span>
+  </div>
+  <div class="iq-progress">
+    <div class="iq-bar" style="width:{% if step == 1 %}25{% elif step == 2 %}50{% elif step == 3 %}75{% else %}100{% endif %}%"></div>
+  </div>
+
+  {% if step == 1 %}
+    <!-- STEP 1: Services (ICON CARDS) -->
+    <form method="post" data-iq data-next-step="2" id="iq-step1">
+      {% csrf_token %}
+      {{ form.service }} {# hidden: will be set when a card is clicked #}
+
+      <div class="svc-grid">
+        {% for s in services %}
+          <label class="svc-card" data-id="{{ s.id }}" aria-checked="false">
+            <span class="icon">
+              {% with slug=s.slug|default_if_none:s.name|lower %}
+                {% if "residential" in slug or "house" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M4 10l8-6 8 6v10a2 2 0 0 1-2 2h-4v-6H10v6H6a2 2 0 0 1-2-2V10z"/>
+                  </svg>
+                {% elif "lease" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M4 4h10l6 6v10a2 2 0 0 1-2 2H4z"/>
+                    <path fill="#2563eb" d="M14 4v6h6"/>
+                  </svg>
+                {% elif "medical" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M10 2h4v6h6v4h-6v6h-4v-6H4V8h6z"/>
+                  </svg>
+                {% elif "bus" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M4 6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v8h-2l2 3v1h-3l-2-3H9l-2 3H4v-1l2-3H4z"/>
+                  </svg>
+                {% elif "gym" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M3 10h3v4H3v-4zm15 0h3v4h-3v-4zM7 9h10v6H7V9z"/>
+                  </svg>
+                {% elif "child" in slug %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <circle cx="12" cy="7" r="3" fill="currentColor"/>
+                    <path fill="currentColor" d="M6 22v-3a6 6 0 0 1 12 0v3z"/>
+                  </svg>
+                {% else %}
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>
+                  </svg>
+                {% endif %}
+              {% endwith %}
+            </span>
+            <div>
+              <div class="title">{{ s.name }}</div>
+              <div class="blurb">
+                {{ s.short_blurb|default:s.description|default:"Professional, reliable and thorough cleaning."|truncatechars:110 }}
+              </div>
+            </div>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="iq-actions">
+        <button class="btn-primary" type="submit">Next</button>
+        <span class="iq-note">Select a service to continue.</span>
+      </div>
+    </form>
+
+  {% elif step == 2 %}
+    <!-- STEP 2: Dynamic DETAILS (steppers + chips) -->
+    <form method="post" data-iq data-next-step="3" id="iq-step2">
+      {% csrf_token %}
+      <div class="iq-note"><strong>Service:</strong> {{ service.name }}</div>
+
+      <div class="iq-row">
+        {% for field in form.visible_fields %}
+          {% if field.field.widget.input_type == 'number' %}
+            <label class="field">
+              {{ field.label_tag }}
+              <div class="stepper">
+                <button type="button" data-step="-1">−</button>
+                {{ field }}
+                <button type="button" data-step="1">+</button>
+              </div>
+            </label>
+          {% elif field.field.widget.input_type == 'checkbox' %}
+            <div class="field">
+              <div class="chips">
+                <button type="button" class="chip"
+                        aria-pressed="{{ field.value|yesno:'true,false' }}"
+                        data-name="{{ field.name }}">{{ field.label }}</button>
+              </div>
+              {{ field.as_hidden }}
+            </div>
+          {% else %}
+            <div class="field">
+              {{ field.label_tag }}{{ field }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="iq-actions">
+        <a class="btn-outline" href="?step=1">Back</a>
+        <button class="btn-primary" type="submit">Next</button>
+      </div>
+    </form>
+
+  {% elif step == 3 %}
+    <!-- STEP 3: FREQUENCY -->
+    <form method="post" data-iq data-next-step="4" id="iq-step3">
+      {% csrf_token %}
+      <div class="iq-row">
+        {% for field in form.visible_fields %}
+          <div class="field">
+            {{ field.label_tag }}{{ field }}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="iq-actions">
+        <a class="btn-outline" href="?step=2">Back</a>
+        <button class="btn-primary" type="submit">Next</button>
+      </div>
+    </form>
+
+  {% else %}
+    <!-- STEP 4: CONTACT -->
+    <form method="post" data-iq id="iq-step4">
+      {% csrf_token %}
+      <div class="iq-row">
+        {% for field in form.visible_fields %}
+          <div class="field">
+            {{ field.label_tag }}{{ field }}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="iq-actions">
+        <a class="btn-outline" href="?step=3">Back</a>
+        <button class="btn-primary" type="submit">Submit</button>
+      </div>
+      <p class="iq-note">We’ll email/text your quote and next steps.</p>
+    </form>
+  {% endif %}
+</div>

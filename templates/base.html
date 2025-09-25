@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+    <!-- SEO -->
+  <link rel="canonical" href="{% block canonical %}/{% endblock %}">
+  <meta name="description" content="{% block meta_description %}{% endblock %}">
+
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{% block og_url %}/{% endblock %}">
+  <meta property="og:image" content="{% static 'images/favicon.png' %}">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{% static 'images/logo.png' %}">
+
+  <title>{% block title %}B&T Bright Spotless Cleaning Services{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{% static 'images/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_css %}{% endblock %}
+  <style>
+    /* Layout chrome (minimal, uses vars from app.css) */
+    .site-header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border)}
+    .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:12px 16px}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .brand img{height:36px;width:auto;border-radius:6px}
+    .brand .name{font-weight:800;color:var(--ink);letter-spacing:.2px}
+    .spacer{flex:1}
+    .menu{display:flex;gap:16px;align-items:center}
+    .menu a{color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;opacity:.9}
+    .menu a:hover{opacity:1}
+    .cta{padding:10px 14px;border-radius:10px;background:linear-gradient(180deg,var(--brand-blue),var(--brand-blue-dark));color:#fff !important;box-shadow:0 6px 16px rgba(31,87,195,.25)}
+    .site-footer{margin-top:48px;background:#0b1220;color:#d8deea}
+    .foot{max-width:1200px;margin:0 auto;padding:28px 16px;display:grid;gap:18px}
+    .foot-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px}
+    .foot h4{margin:0 0 10px;font-size:14px;color:#fff}
+    .foot a{color:#d8deea;text-decoration:none}
+    .foot a:hover{color:#fff}
+    .foot .brandline{display:flex;align-items:center;gap:10px}
+    .foot .brandline img{height:28px;border-radius:6px}
+    .foot-bottom{border-top:1px solid #243049;padding-top:12px;font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    main{min-height:60vh}
+    @media (max-width:900px){.foot-top{grid-template-columns:1fr 1fr}}
+    @media (max-width:640px){.menu{display:none}}
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"LocalBusiness",
+    "name":"B&T Bright Spotless Cleaning Services",
+    "url":"https://www.cleaningservicesbt.com.au/",
+    "@id":"https://www.cleaningservicesbt.com.au/#org",
+    "image":"https://www.cleaningservicesbt.com.au/static/images/favicon.png",
+    "telephone":"+61 431 320 507",
+    "email":"fortulacacocktail@gmail.com",
+    "address":{
+      "@type":"PostalAddress",
+      "streetAddress":"103 little road",
+      "addressLocality":"Yagoona",
+      "addressRegion":"NSW",
+      "postalCode":"2199",
+      "addressCountry":"AU"
+    },
+    "areaServed":"Sydney",
+    "sameAs":[]
+  }
+  </script>
+
+
+
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header class="site-header">
+    <nav class="nav">
+    <a href="/" class="brand" aria-label="B&T Bright Spotless Cleaning Services">
+        <img src="{% static 'images/favicon.ico' %}" alt="B&T Logo">
+        <span style="color: rgba(14, 63, 104);" class="name">B&amp;T BRIGHT SPOTLESS CLEANING SERVICES</span>
+    </a>
+    <div class="spacer"></div>
+
+    <!-- Desktop menu (unchanged) -->
+    <div class="menu">
+        <a href="/">Home</a>
+        <a href="/about/">About Us</a>
+        <a href="/services/">Services</a>
+        <a href="/portfolio/">Portfolio</a>
+        <!-- <a href="/blog/">Blog</a> -->
+        <a href="/contact/">Contact</a>
+        <a href="/booking/" class="cta" style="color: rgba(14, 63, 104);">Book Now</a>
+        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
+    </div>
+
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+    </button>
+    </nav>
+
+    <!-- Mobile drawer -->
+    <div id="mobileMenu" class="mobile-drawer" hidden>
+    <div class="mobile-inner">
+        <a href="/" class="m-link">Home</a>
+        <a href="/about/" class="m-link">About Us</a>
+        <a href="/services/" class="m-link">Services</a>
+        <a href="/portfolio/" class="m-link">Portfolio</a>
+        <!-- <a href="/blog/" class="m-link">Blog</a> -->
+        <a href="/contact/" class="m-link">Contact</a>
+        <a href="/booking/" class="m-cta"style="color: rgba(14, 63, 104);">Book Now</a>
+        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
+    </div>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  {% if messages %}
+    <div class="section-wrap" style="padding:12px">
+      <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <!-- Page content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="foot">
+      <div class="foot-top">
+        <div>
+          <div class="brandline">
+            <img src="{% static 'images/favicon.png' %}" alt="B&T Logo small">
+            <strong>B&amp;T Bright Spotless Cleaning Services</strong>
+          </div>
+          <p style="margin:10px 0 0;max-width:46ch">Professional cleaning across Australia: Commercial, Strata, Pub, End of Lease, New Build, Residential, Gym, Bus, Child Care, Medical.</p>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <p>103 little road, Yagoona, NSW 2199</p>
+          <p><a href="tel:+61431320507">(043) 132-0507</a></p>
+          <p><a href="mailto:benjiecleaning@outlook.com">benjiecleaning@outlook.com</a></p>
+          <p>taxID: ABN 42 244 371 365</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <p><a href="/services/">Our Services</a></p>
+          <p><a href="/booking/">Get a Quote</a></p>
+          <p><a href="/contact/">Contact</a></p>
+          <p><a href="/privacy/">Privacy</a></p>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>&copy; {% now "Y" %} B&amp;T Bright Spotless Cleaning Services. All rights reserved.</span>
+        <span>ABN: 42 244 371 365 · Site by Emmanuel Onuche Alfa.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================Scripts =========================================-->
+
+
+    <script>
+    (function () {
+        const btn = document.getElementById('menuBtn');
+        const drawer = document.getElementById('mobileMenu');
+        function setOpen(open){
+        btn.setAttribute('aria-expanded', String(open));
+        document.body.style.overflow = open ? 'hidden' : '';
+        if(open){
+            drawer.hidden = false;
+            requestAnimationFrame(()=> drawer.classList.add('open'));
+        }else{
+            drawer.classList.remove('open');
+            drawer.addEventListener('transitionend', () => { drawer.hidden = true; }, { once: true });
+        }
+        }
+        btn?.addEventListener('click', () => {
+        const isOpen = btn.getAttribute('aria-expanded') === 'true';
+        setOpen(!isOpen);
+        });
+        drawer?.addEventListener('click', (e) => {
+        if(e.target === drawer) setOpen(false);
+        });
+        document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') setOpen(false); });
+    })();
+    </script>
+
+
+  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+ 
+ 
+ 
+ 
+  <!-- Instant Quote Modal -->
+  <div id="iqModal" class="iq-modal" hidden>
+    <div class="iq-backdrop js-iq-close" aria-hidden="true"></div>
+    <div class="iq-dialog" role="dialog" aria-modal="true" aria-labelledby="iqTitle">
+      <button class="iq-close js-iq-close" aria-label="Close">×</button>
+      <div id="iqMount"><!-- dynamic content goes here --></div>
+    </div>
+  </div>
+
+ 
+  <script src="{% static 'js/instant_quote.js' %}"></script>
+
+  {% block extra_js %}{% endblock %} 
+</body>
+</html>

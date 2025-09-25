@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Our Cleaning Services | B&T Bright Spotless{% endblock %}
+
+{% block extra_css %}
+<style>
+  .section{padding:clamp(24px,5vw,48px) 16px;background:var(--bg)}
+  .wrap{max-width:1200px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:620px){.grid{grid-template-columns:1fr}}
+  .svc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(17,37,84,.06)}
+  .svc h2{margin:0;font-size:18px;color:var(--ink)}
+  .svc p{margin:0;color:var(--muted);font-size:14px}
+  .svc .actions{margin-top:auto;display:flex;gap:8px}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <h1 class="title" style="margin-bottom:10px">Our Services</h1>
+    <p class="subtitle" style="margin-bottom:22px">Premium cleaning for homes & businesses across Australia.</p>
+
+    {% for s in services %}
+      <section class="svc-stack {% if forloop.counter|divisibleby:2 %}is-alt{% endif %}">
+        <div class="svc-media">
+          {% if s.hero_image %}
+            <img src="{{ s.hero_image }}" alt="{{ s.name }}"
+                 loading="lazy" decoding="async"
+                 sizes="(max-width: 960px) 100vw, 1200px">
+          {% else %}
+            <img src="{% static 'images/placeholder-hero.jpg' %}" alt="{{ s.name }}"
+                 loading="lazy" decoding="async">
+          {% endif %}
+        </div>
+
+        <div class="svc-pane">
+          <h2 class="svc-title">
+            <a href="{{ s.get_absolute_url }}" class="svc-link">{{ s.name }}</a>
+          </h2>
+          <p class="svc-blurb">
+            {{ s.short_blurb|default:s.description|default:"Professional, reliable and thorough cleaning."|truncatechars:200 }}
+          </p>
+          <div class="svc-actions">
+            <a class="btn-pane" href="{{ s.get_absolute_url }}">View Details →</a>
+          </div>
+        </div>
+      </section>
+    {% empty %}
+      <p>No services available yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+

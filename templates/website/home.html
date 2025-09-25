@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cleaning Services in Sydney | B&T Bright Spotless{% endblock %}
+
+<link rel="preload" href="{% static 'images/cleaning_team1.png' %}" as="image" fetchpriority="high">
+<link rel="preload" href="{% static 'images/cleaning_team2.png' %}" as="image">
+
+{% block extra_css %}
+<style>
+  /* ---- Brand & base tokens (safe defaults; override from base.css if present) ---- */
+  :root{
+    --brand-blue: #1F57C3;
+    --brand-yellow: #FFD84D;
+    --ink: #0f172a;
+    --muted: #5b667a;
+    --bg: #f7f9fc;
+    --border: #e6e9f0;
+  }
+
+  /* ---- Container rhythm ---- */
+  .section{padding:clamp(28px,5vw,56px) 16px;background:var(--bg)}
+  .wrap,.hero{max-width:1200px;margin:0 auto}
+  .wrap{padding:0 6px}
+
+  /* ---- Hero ---- */
+  .hero-bg{
+    background:
+      radial-gradient(900px 500px at -10% -10%, rgba(31,87,195,.10), transparent),
+      var(--bg);
+  }
+  .hero{
+    display:grid;gap:16px;grid-template-columns:1.3fr 1fr;align-items:center;
+    padding:clamp(22px,4.5vw,44px);
+  }
+  .hero .h-left{padding-right:12px}
+  .hero h1{font-size:clamp(30px,4.4vw,48px);margin:0;color:var(--ink);font-weight:900;letter-spacing:.2px;line-height:1.1}
+  .hero p{color:var(--muted);font-size:clamp(14px,1.6vw,18px);margin-top:6px}
+  .cta-row{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .trust{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-weight:600;margin-top:12px}
+
+  /* ---- Buttons (refined) ---- */
+  .btn-primary,.btn-outline{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:12px 16px;border-radius:12px;font-weight:800;text-decoration:none;
+    transition:transform .12s ease, box-shadow .12s ease, background-color .12s ease, color .12s ease, border-color .12s ease;
+    will-change:transform;
+  }
+  .btn-primary{
+    background:var(--brand-blue);color:#fff;border:1px solid transparent;
+    box-shadow:0 6px 16px rgba(31,87,195,.18);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(31,87,195,.22)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-outline{
+    border:1px solid var(--border);color:var(--ink);background:#fff;
+  }
+  .btn-outline:hover{background:#f1f5ff;border-color:#d6def5}
+  .btn-primary:focus-visible,.btn-outline:focus-visible{
+    outline:none;box-shadow:0 0 0 3px #fff, 0 0 0 6px rgba(31,87,195,.35)
+  }
+
+  /* ---- Cards & grid ---- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:1080px){.hero{grid-template-columns:1fr 1fr}}
+  @media (max-width:960px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:620px){.grid{grid-template-columns:1fr}}
+
+  .hero-card,.step,.card-svc{
+    background:#fff;border:1px solid var(--border);border-radius:14px;
+    box-shadow:0 10px 30px rgba(17,37,84,.08)
+  }
+  .hero-card{padding:18px}
+  .step{padding:16px}
+
+  .card-svc{padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+  .card-svc h3{margin:0;font-size:18px;color:var(--ink)}
+  .card-svc p{margin:0;color:var(--muted);font-size:14px}
+  .card-svc .actions{margin-top:12px;display:flex;gap:8px}
+
+  /* ---- Tag pill ---- */
+  .tag{
+    position:absolute;top:12px;right:12px;
+    background:var(--brand-yellow);color:#111827;
+    padding:4px 10px;border-radius:999px;font-weight:800;font-size:12px;
+    box-shadow:0 4px 10px rgba(241,196,15,.25)
+  }
+
+  /* ---- FAQ hierarchy ---- */
+  .faq dt{font-weight:900;margin-top:14px;color:var(--ink)}
+  .faq dd{margin:6px 0 12px;color:var(--muted);line-height:1.55}
+
+  /* ---- Reduced motion respect ---- */
+  @media (prefers-reduced-motion: reduce){
+    .btn-primary,.btn-outline{transition:none}
+  }
+
+
+
+/* ---------------------------------------------------- Hero media (cinematic) -------------------------------------------------- */
+.hero-media{
+  position:relative; border-radius:16px; overflow:hidden;
+  aspect-ratio: 5 / 4; background:#e9eef8;
+  box-shadow:0 18px 50px rgba(17,37,84,.18), 0 6px 18px rgba(17,37,84,.08);
+  border:1px solid var(--border);
+}
+.hero-img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transform-origin: 60% 40%; /* nicer pan pivot */
+  opacity:0; will-change:transform, opacity, clip-path, filter;
+}
+.hero-img.is-active{opacity:1}
+.hero-media::after{
+  /* subtle gradient depth */
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.05), transparent 30%, transparent 70%, rgba(0,0,0,.08));
+  pointer-events:none;
+}
+.hero-sheen{
+  /* light sweep bar */
+  position:absolute; top:-20%; left:-30%; width:40%; height:140%;
+  background:linear-gradient(100deg, transparent 0%, rgba(255,255,255,.65) 50%, transparent 100%);
+  transform:rotate(12deg) translateX(-120%);
+  mix-blend-mode: screen; pointer-events:none;
+  filter: blur(2px);
+}
+
+/* diagonal reveal mask baseline (animated via GSAP) */
+.hero-img{clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);}
+
+@media (max-width:960px){
+  .hero-media{aspect-ratio: 4/3}
+}
+
+
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ===================HERO =====================
+<section class="section" style="background:radial-gradient(900px 500px at -10% -10%, rgba(31,87,195,.10), transparent), var(--bg)">
+  <div class="hero">
+    <div class="h-left">
+      <h1 class="reveal-hero">Spotless Cleaning Across Sydney</h1>
+      <p class="reveal-hero">Commercial • Strata • End of Lease • Residential • Medical &amp; more — fast, insured, and satisfaction-guaranteed.</p>
+      <div class="cta-row reveal-hero">
+        <a href="/booking/" class="btn-primary">Book Now</a>
+        <a href="/booking/" class="btn-outline">Get a Quote</a>
+      </div>
+      <div class="trust reveal-hero">
+        <span>Police-checked</span> • <span>Fully Insured</span> • <span>Eco-friendly Options</span>
+      </div>
+    </div>
+    <div class="hero-card reveal-hero">
+      <strong>Next-day availability</strong>
+      <p style="margin:6px 0 0">Tell us your suburb and preferred time — we’ll confirm in minutes.</p>
+      <ul style="margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:14px">
+        <li>Live booking &amp; email updates</li>
+        <li>Flexible scheduling, 7 days</li>
+        <li>All supplies &amp; equipment provided</li>
+      </ul>
+    </div>
+  </div>
+</section>  -->
+
+
+<!-- HERO -->
+<section class="section hero-bg">
+  <div class="hero">
+    <div class="h-left">
+      <h1 class="reveal-hero">Spotless Cleaning Across <span id="geoWord" style="color: rgb(208, 150, 2);">Sydney.</span></h1>
+      <p class="reveal-hero" style="font-weight: bold;" >Commercial • Strata • End of Lease • Residential • Medical &amp; more - fast, insured, and satisfaction-guaranteed.</p>
+      <div class="cta-row reveal-hero">
+        <a href="/booking/" class="btn-primary" aria-label="Book a cleaning now">Book Now</a>
+        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
+      </div>
+        <div class="trust reveal-hero">
+          <span class="trust-item" title="Police-checked">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11-3.2-1.3-7-6-7-11V5l7-3zm0 4l-4 1.7V11c0 3.4 2.3 7 4 8 1.7-1 4-4.6 4-8V7.7L12 6z"/>
+              <path fill="#10b981" d="M10.5 12.7l-1.8-1.8-1.2 1.2 3 3 5-5-1.2-1.2z"/>
+            </svg>
+            Police-checked
+          </span>
+          <span class="trust-item" title="Fully Insured">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11-3.2-1.3-7-6-7-11V5l7-3z"/>
+              <path fill="#3b82f6" d="M7 12h10v2H7zM7 15h7v2H7z"/>
+            </svg>
+            Fully Insured
+          </span>
+          <span class="trust-item" title="Eco-friendly Options">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="#22c55e" d="M12 21c-4.4 0-8-3.6-8-8 0-4.7 3.9-8.7 10.6-9.9 1.3-.2 2.3 1.1 1.8 2.3C15.7 7.3 14 11 14 13.5c0 2.3 1.3 4.9 3.6 6.8A7.97 7.97 0 0 1 12 21z"/>
+              <path fill="currentColor" d="M5 13c2.5-1.2 5.1-1.7 7.9-1.6-1.7 1.1-3.2 2.7-4.2 4.6-.4.7-1.3.9-2 .6-.8-.4-1.3-1.4-1.7-3.6z"/>
+            </svg>
+            Eco-friendly Options
+          </span>
+        </div>
+        <div class="abn-info" style="display: flex; align-items: center; gap: 8px; margin-top: 20px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="10" fill="#FFD84D"/>
+            <text x="12" y="16" text-anchor="middle" font-size="10" fill="#1F57C3" font-family="Arial, sans-serif">ABN</text>
+          </svg>
+          <span style="font-size:15px;color:var(--muted);font-weight:600;">ABN: 42 244 371 365</span>
+        </div>
+    </div>
+
+        <!-- Add inside the HERO right column, above .hero-card -->
+    <div class="hero-media reveal-hero">
+      <img src="{% static 'images/cleaning_team1.png' %}" alt="Professional cleaning team in Sydney" class="hero-img is-active">
+      <img src="{% static 'images/cleaning_team2.png' %}" alt="Sparkling cleaned interior in Sydney" class="hero-img">
+      <span class="hero-sheen" aria-hidden="true"></span>
+    </div>
+
+    <!-- <div class="hero-card reveal-hero">
+      <img src="/static/images/cleaning_team1.png" alt="">
+    </div> -->
+  </div>
+</section>
+
+
+<!-- KEY SERVICES -->
+<section class="section">
+  <div class="wrap">
+    <h2 class="title reveal">Popular Services</h2>
+    <div class="grid">
+      {% for s in services %}
+      <article class="card-svc reveal">
+        <div class="svc-thumb">
+          {% if s.hero_image %}
+            <img src="{{ s.hero_image }}" alt="{{ s.name }}">
+          {% else %}
+            <img src="{% static 'images/cleaning_team1.png' %}" alt="{{ s.name }}">
+          {% endif %}
+        </div>
+        <div class="svc-body">
+          <h3>{{ s.name }}</h3>
+          <p>{{ s.short_blurb|default:s.description|default:"Professional, reliable and thorough cleaning."|truncatechars:110 }}</p>
+          <div class="actions">
+            <a class="btn-primary" href="{{ s.get_absolute_url }}">View Details</a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <p>No services configured yet. Add some in admin.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section">
+  <div class="wrap grid">
+    <div class="step reveal"><h3>Fast & Flexible</h3><p>Book in minutes, reschedule easily.</p></div>
+    <div class="step reveal"><h3>Trusted Team</h3><p>Police-checked, trained professionals.</p></div>
+    <div class="step reveal"><h3>Quality Guarantee</h3><p>We fix any missed spots, no stress.</p></div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="section">
+  <div class="wrap reveal" style="text-align:center">
+    <h2 class="title" style="margin-bottom:8px">Ready for spotless?</h2>
+    <a href="/booking/" class="btn-primary">Book Now</a>
+  </div>
+</section>
+
+<!-- FAQ (short) -->
+<section class="section">
+  <div class="wrap reveal">
+    <h2 class="title">FAQ</h2>
+    <dl class="faq">
+      <dt>Do you bring supplies?</dt><dd>Yes, all supplies and equipment included.</dd>
+      <dt>Are you insured?</dt><dd>Fully insured. Safety is our priority.</dd>
+      <dt>What areas do you cover?</dt>
+      <dd>
+        We provide cleaning services across Australia, including all states and capital cities:<br>
+        <strong>New South Wales:</strong> Sydney<br>
+        <strong>Victoria:</strong> Melbourne<br>
+        <strong>Queensland:</strong> Brisbane<br>
+        <strong>Western Australia:</strong> Perth<br>
+        <strong>South Australia:</strong> Adelaide<br>
+        <strong>Tasmania:</strong> Hobart<br>
+        <strong>Australian Capital Territory:</strong> Canberra<br>
+        <strong>Northern Territory:</strong> Darwin
+      </dd>
+    </dl>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- GSAP + ScrollTrigger -->
+<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
+
+

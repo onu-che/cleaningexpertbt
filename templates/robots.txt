@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin/
+
+# Update after deploy:
+Sitemap: https://www.cleaningexpertbt.com.au/sitemap.xml

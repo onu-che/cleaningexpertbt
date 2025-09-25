@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Portfolio | B&T Bright Spotless{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* --- Filter chips --- */
+  .p-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .p-chip{
+    background:#fff;border:1px solid var(--border);color:var(--ink);
+    padding:8px 12px;border-radius:999px;font-weight:800;cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease
+  }
+  .p-chip[aria-pressed="true"]{background:var(--brand-blue);color:#fff;border-color:transparent}
+  .p-chip:active{transform:translateY(1px)}
+
+  /* --- Masonry --- */
+  .p-masonry{column-count:3;column-gap:16px}
+  @media (max-width:1080px){.p-masonry{column-count:2}}
+  @media (max-width:640px){.p-masonry{column-count:1}}
+
+  /* --- Card --- */
+  .p-card{
+    break-inside:avoid;background:#fff;border:1px solid var(--border);
+    border-radius:16px;box-shadow:0 12px 28px rgba(17,37,84,.08);
+    margin:0 0 16px;overflow:hidden;display:block;text-decoration:none;color:inherit
+  }
+  .p-media{position:relative;aspect-ratio:4/3;background:#eef2f8}
+  .p-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  /* glossy diagonal hover */
+  .p-overlay{
+    position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s ease;
+    background:linear-gradient(135deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.22) 45%, rgba(255,255,255,.0) 55%);
+    mix-blend-mode:screen
+  }
+  .p-labels{
+    position:absolute;inset:0;display:flex;justify-content:space-between;align-items:flex-end;
+    padding:10px
+  }
+  .p-pill{background:rgba(0,0,0,.6);color:#fff;font-weight:900;font-size:12px;padding:6px 10px;border-radius:999px}
+  .p-card:hover .p-overlay{opacity:1}
+
+  .p-body{padding:12px 14px}
+  .p-title{margin:0 0 4px;font-size:16px;font-weight:900;color:var(--ink)}
+  .p-cap{margin:0;color:var(--muted);font-size:14px}
+
+  /* Lightbox */
+  .p-lightbox{position:fixed;inset:0;background:rgba(9,16,28,.85);display:none;align-items:center;justify-content:center;z-index:60}
+  .p-lightbox.is-open{display:flex}
+  .p-lightbox img{max-width:min(92vw,1400px);max-height:84vh;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .p-close,.p-prev,.p-next{
+    position:fixed;top:18px;background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:8px 12px;font-weight:900;cursor:pointer;z-index:61
+  }
+  .p-close{right:18px}
+  .p-prev{left:18px;top:50%;transform:translateY(-50%)}
+  .p-next{right:18px;top:50%;transform:translateY(-50%)}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <h1 class="title" style="margin-bottom:10px">Portfolio</h1>
+    <p class="reveal" style="color:var(--muted);margin-bottom:14px">
+      Real before/after results across Australia. Use filters to explore.
+    </p>
+
+    <!-- Filters -->
+    <div class="p-filters">
+      <button class="p-chip" data-filter="all" aria-pressed="true">All</button>
+      <button class="p-chip" data-filter="end-of-lease">End of Lease</button>
+      <button class="p-chip" data-filter="new-build">New Build</button>
+      <button class="p-chip" data-filter="residential">Residential</button>
+      <button class="p-chip" data-filter="gym">Gym</button>
+      <button class="p-chip" data-filter="bus">Bus</button>
+      <button class="p-chip" data-filter="child-care">Child Care</button>
+      <button class="p-chip" data-filter="medical">Medical</button>
+    </div>
+
+    <!-- Masonry Grid -->
+    <div class="p-masonry" id="portfolioGrid">
+      {% for item in portfolio_items %}
+      <a href="{{ item.image }}" class="p-card" data-service="{{ item.service|lower }}">
+        <figure class="p-media">
+          <img class="p-img" src="{{ item.image }}" alt="{{ item.title }} — before and after" loading="lazy" decoding="async">
+          <span class="p-overlay"></span>
+          <div class="p-labels" aria-hidden="true">
+            <span class="p-pill">Before</span>
+            <span class="p-pill">After</span>
+          </div>
+        </figure>
+        <div class="p-body">
+          <h3 class="p-title">{{ item.title }}</h3>
+          <p class="p-cap">{{ item.caption|default:"Professional before & after result." }}</p>
+        </div>
+      </a>
+      {% empty %}
+        <p>No portfolio items yet. Add some in admin.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="p-lightbox" id="pLightbox" aria-modal="true" role="dialog">
+  <button class="p-close" id="pClose" aria-label="Close">Close</button>
+  <button class="p-prev" id="pPrev" aria-label="Previous">‹</button>
+  <img id="pImg" alt="Portfolio full view">
+  <button class="p-next" id="pNext" aria-label="Next">›</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/portfolio.js' %}"></script>
+{% endblock %}
