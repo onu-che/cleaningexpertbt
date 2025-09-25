@@ -9,18 +9,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "set-this-in-render")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
+import os
+from pathlib import Path
+import dj_database_url
+
+# ...
+
+# Hosts
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "cleaningexpertbt.com.au,www.cleaningexpertbt.com.au,127.0.0.1,cleaning-expert-bt.onrender.com"
+    ".onrender.com,cleaning-expert-bt.onrender.com,cleaningexpertbt.com.au,www.cleaningexpertbt.com.au"
 ).split(",")
 
-
 CSRF_TRUSTED_ORIGINS = [
+    "https://cleaning-expert-bt.onrender.com",
     "https://cleaningexpertbt.com.au",
     "https://www.cleaningexpertbt.com.au",
-    "https://cleaning-expert-bt.onrender.com",
-    # later add Render service URL: https://<service>.onrender.com
 ]
+
+# Behind Render’s proxy
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Applications
 INSTALLED_APPS = [
@@ -102,3 +113,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+# STATIC
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"     # collectstatic output
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # ensure this is here
+    # ...rest unchanged...
+]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
