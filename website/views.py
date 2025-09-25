@@ -125,43 +125,43 @@ from django.templatetags.static import static
 def portfolio(request):
     items = [
         {
-            "image": static("images/apartment_portfolio.webp"),
+            "image": static("images/apartment_portfolio.png"),
             "service": "end-of-lease",
             "title": "End of Lease",
             "caption": "Kitchen & living deep clean",
         },
         {
-            "image": static("images/new_building_portfolio.webp"),
+            "image": static("images/new_building_portfolio.png"),
             "service": "new-build",
             "title": "New Build",
             "caption": "Fine dust removal & polish",
         },
         {
-            "image": static("images/residential_portfolio.webp"),
+            "image": static("images/residential_portfolio.png"),
             "service": "residential",
             "title": "Residential",
             "caption": "Bedroom & carpet freshening",
         },
         {
-            "image": static("images/gym_portfolio.webp"),
+            "image": static("images/gym_portfolio.png"),
             "service": "gym",
             "title": "Gym Cleaning",
             "caption": "Equipment sanitisation & floor polish",
         },
         {
-            "image": static("images/bus_portfolio.webp"),
+            "image": static("images/bus_portfolio.png"),
             "service": "bus",
             "title": "Bus Cleaning",
             "caption": "Deep interior vehicle cleaning",
         },
         {
-            "image": static("images/child_cleaning_portfolio.webp"),
+            "image": static("images/child_cleaning_portfolio.png"),
             "service": "child-care",
             "title": "Child Care",
             "caption": "Playroom disinfection & toy sanitising",
         },
         {
-            "image": static("images/medical_cleaning_portfolio.webp"),
+            "image": static("images/medical_cleaning_portfolio.png"),
             "service": "medical",
             "title": "Medical",
             "caption": "Sterile clinic & surgery space cleaning",
