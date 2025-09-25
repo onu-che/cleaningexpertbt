@@ -11,12 +11,14 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "cleaningexpertbt.com.au,www.cleaningexpertbt.com.au"
+    "cleaningexpertbt.com.au,www.cleaningexpertbt.com.au,127.0.0.1,cleaning-expert-bt.onrender.com"
 ).split(",")
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://cleaningexpertbt.com.au",
     "https://www.cleaningexpertbt.com.au",
+    "https://cleaning-expert-bt.onrender.com",
     # later add Render service URL: https://<service>.onrender.com
 ]
 
