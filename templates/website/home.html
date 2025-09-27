@@ -131,40 +131,61 @@
 @media (max-width:960px){
   .hero-media{aspect-ratio: 4/3}
 }
-
-
-
 </style>
 {% endblock %}
 
 
 {% block content %}
+      <!-- ============================== NEW ICON =================================== -->
 
-<!-- ===================HERO =====================
-<section class="section" style="background:radial-gradient(900px 500px at -10% -10%, rgba(31,87,195,.10), transparent), var(--bg)">
-  <div class="hero">
-    <div class="h-left">
-      <h1 class="reveal-hero">Spotless Cleaning Across Sydney</h1>
-      <p class="reveal-hero">Commercial • Strata • End of Lease • Residential • Medical &amp; more — fast, insured, and satisfaction-guaranteed.</p>
-      <div class="cta-row reveal-hero">
-        <a href="/booking/" class="btn-primary">Book Now</a>
-        <a href="/booking/" class="btn-outline">Get a Quote</a>
-      </div>
-      <div class="trust reveal-hero">
-        <span>Police-checked</span> • <span>Fully Insured</span> • <span>Eco-friendly Options</span>
-      </div>
-    </div>
-    <div class="hero-card reveal-hero">
-      <strong>Next-day availability</strong>
-      <p style="margin:6px 0 0">Tell us your suburb and preferred time — we’ll confirm in minutes.</p>
-      <ul style="margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:14px">
-        <li>Live booking &amp; email updates</li>
-        <li>Flexible scheduling, 7 days</li>
-        <li>All supplies &amp; equipment provided</li>
-      </ul>
-    </div>
+<!-- TOP CONTACT -->
+<div id="top-contact" style="position:sticky;top:0;z-index:10;background:var(--brand-blue) ;color: #fff;border-bottom:1px solid rgba(255,255,255,.18);">
+  <div class="tc-wrap"
+       style="max-width:1200px;margin:0 auto;box-sizing:border-box;max-height: 50px;
+              display:flex;align-items:center;justify-content:flex-start;
+              gap:clamp(4px,1vw,8px);flex-wrap:nowrap;white-space:nowrap;">
+
+    <!-- ABN -->
+    <span class="tc-item"
+          style="display:flex;align-items:center;gap:6px;margin-top: 12px;
+                 height:34px;padding:0 12px;border-radius:999px;
+                 background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+                 font-size:clamp(0.75rem,2vw,0.92rem);line-height:1;font-weight:600;">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex:0 0 16px;">
+        <path fill="#ffffff" d="M7 3h10a2 2 0 0 1 2 2v14l-7-3-7 3V5a2 2 0 0 1 2-2z"></path>
+      </svg>
+      <span>ABN 42 244 371 365 + GST</span>
+    </span>
+
+    <!-- Phone -->
+    <a href="tel:+61431320507" class="tc-item"
+       style="display:flex;align-items:center;gap:6px;margin-top: 12px;
+              height:34px;padding:0 12px;border-radius:999px;
+              background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+              color:#fff;text-decoration:none;font-size:clamp(0.75rem,2vw,0.92rem);line-height:1;font-weight:600;">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex:0 0 16px;">
+        <path fill="#ffffff" d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.2 11 11 0 0 0 3.5.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.4a1 1 0 0 1 1 1c0 1.2.2 2.4.6 3.5a1 1 0 0 1-.2 1z"></path>
+      </svg>
+      <span>Phone</span>
+    </a>
+
+    <!-- Email -->
+    <a href="mailto:fortulacacocktail@gmail.com" class="tc-item"
+       style="display:flex;align-items:center;gap:6px;margin-top: 12px;
+              height:34px;padding:0 12px;border-radius:999px;
+              background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+              color:#fff;text-decoration:none;font-size:clamp(0.75rem,2vw,0.92rem);line-height:1;font-weight:600;">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex:0 0 16px;">
+        <path fill="#ffffff" d="M20 4H4a2 2 0 0 0-2 2v1l10 6 10-6V6a2 2 0 0 0-2-2Zm0 6.3-9.4 5.6a1 1 0 0 1-1 0L4 10.3V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.7Z"></path>
+      </svg>
+      <span>Email</span>
+    </a>
   </div>
-</section>  -->
+</div>
+
+
+
+
 
 
 <!-- HERO -->
@@ -174,9 +195,10 @@
       <h1 class="reveal-hero">Spotless Cleaning Across <span id="geoWord" style="color: rgb(208, 150, 2);">Sydney.</span></h1>
       <p class="reveal-hero" style="font-weight: bold;" >Commercial • Strata • End of Lease • Residential • Medical &amp; more - fast, insured, and satisfaction-guaranteed.</p>
       <div class="cta-row reveal-hero">
-        <a href="/booking/" class="btn-primary" aria-label="Book a cleaning now">Book Now</a>
-        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
-      </div>
+        <!-- <a href="/booking/" class="btn-primary" aria-label="Book a cleaning now">Book Now</a> -->
+        <a href="#" style="background-color: var(--brand-blue); color: #fff;" class="btn-outline js-open-quote">Get an Instant Quote</a>
+      </div> <br>
+
         <div class="trust reveal-hero">
           <span class="trust-item" title="Police-checked">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -200,13 +222,13 @@
             Eco-friendly Options
           </span>
         </div>
-        <div class="abn-info" style="display: flex; align-items: center; gap: 8px; margin-top: 20px;">
+        <!-- <div class="abn-info" style="display: flex; align-items: center; gap: 8px; margin-top: 20px;">
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;">
             <circle cx="12" cy="12" r="10" fill="#FFD84D"/>
             <text x="12" y="16" text-anchor="middle" font-size="10" fill="#1F57C3" font-family="Arial, sans-serif">ABN</text>
           </svg>
-          <span style="font-size:15px;color:var(--muted);font-weight:600;">ABN: 42 244 371 365</span>
-        </div>
+          <<span style="font-size:15px;color:var(--muted);font-weight:600;">ABN: 42 244 371 365</span> -->
+        <!-- </div>  -->
     </div>
 
         <!-- Add inside the HERO right column, above .hero-card -->
@@ -221,6 +243,8 @@
     </div> -->
   </div>
 </section>
+
+
 
 
 <!-- KEY SERVICES -->
@@ -296,8 +320,10 @@
 
 {% block extra_js %}
 <!-- GSAP + ScrollTrigger -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
 <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
 <script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/top_contact.js' %}"></script>
 {% endblock %}
 
 
