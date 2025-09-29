@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Get an Instant Quote | B&T Bright Spotless{% endblock %}
+
+{% block extra_css %}
+<style>
+  .iq-wrap{max-width:980px;margin:0 auto}
+  .iq-progress{height:8px;background:#eef2fb;border-radius:999px;overflow:hidden;margin:10px 0 16px}
+  .iq-bar{height:100%;background:linear-gradient(180deg,var(--brand-blue),var(--brand-blue-600));}
+  /* bar width via inline style below */
+
+  .iq-steps{display:flex;gap:8px;color:var(--text-2);font-weight:700;margin-bottom:6px;flex-wrap:wrap}
+  .iq-steps .on{color:var(--brand-blue)}
+
+  /* Step 1 cards */
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:960px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.svc-grid{grid-template-columns:1fr}}
+
+  .svc-card{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff;
+            box-shadow:0 10px 26px rgba(17,37,84,.08);cursor:pointer}
+  .svc-card img{width:100%;height:160px;object-fit:cover;display:block}
+  .svc-card .body{padding:12px 14px}
+  .svc-card .title{margin:0 0 4px;font-weight:900}
+  .svc-card input{display:none}
+  .svc-card[aria-checked="true"]{outline:3px solid rgba(31,87,195,.35)}
+
+  .iq-form{display:grid;gap:12px}
+  .iq-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.iq-row{grid-template-columns:1fr}}
+  .iq-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .iq-note{color:var(--text-2);font-size:14px}
+
+  .iq-quote{border:1px solid #b8e1c7;background:#ecfff3;color:#136b2b;border-radius:10px;padding:10px 12px}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="iq-wrap">
+
+    <!-- STEP HEAD -->
+        <div class="iq-steps">
+        <span class="{% if step >= 1 %}on{% endif %}">1. Service</span> →
+        <span class="{% if step >= 2 %}on{% endif %}">2. Details</span> →
+        <span class="{% if step >= 3 %}on{% endif %}">3. Frequency</span> →
+        <span class="{% if step >= 4 %}on{% endif %}">4. Contact</span>
+        </div>
+    <div class="iq-progress">
+      <!-- progress width: 25/50/75/100% -->
+      <div class="iq-bar" style="width: '{% if progress_width %}{{ progress_width }}{% else %}0{% endif %}%';"></div>
+    </div>
+
+    {% if step == 1 %}
+      <!-- STEP 1: Services as CARDS -->
+      <form method="post" class="iq-form" id="svcForm">
+        {% csrf_token %}
+        {{ form.service }} {# hidden #}
+        <div class="svc-grid">
+          {% for s in services %}
+          <label class="svc-card" data-id="{{ s.id }}" aria-checked="false">
+            {% if s.hero_image %}
+              <img src="{{ s.hero_image }}" alt="{{ s.name }}">
+            {% else %}
+              <img src="{% static 'images/placeholder-hero.jpg' %}" alt="{{ s.name }}">
+            {% endif %}
+            <div class="body">
+              <div class="title">{{ s.name }}</div>
+              <div style="color:var(--muted);font-size:14px">
+                {{ s.short_blurb|default:s.description|default:"Professional, reliable and thorough cleaning."|truncatechars:110 }}
+              </div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="iq-actions">
+          <button class="btn-primary" type="submit">Next</button>
+          <span class="iq-note">Select a service to continue.</span>
+        </div>
+      </form>
+
+    {% else %}
+      <!-- STEPS 2-4: Forms -->
+      <form method="post" class="iq-form">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+        {% if service %}
+          <div class="iq-note"><strong>Service:</strong> {{ service.name }}</div>
+        {% endif %}
+
+        <div class="iq-row">
+          {% for field in form.visible_fields %}
+            <div class="field">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.errors %}<div class="errorlist">{{ field.errors }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if quote_preview %}
+          <div class="iq-quote"><strong>Current estimate:</strong> ${{ quote_preview }}</div>
+        {% endif %}
+
+        <div class="iq-actions">
+          <a class="btn-outline" href="?step={{ step|add:"-1" }}">Back</a>
+          {% if step < 4 %}
+            <button class="btn-primary" type="submit">Next</button>
+          {% else %}
+            <button class="btn-primary" type="submit">Get My Quote</button>
+          {% endif %}
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Step 1: turn cards into selectors
+  (function(){
+    const form = document.getElementById('svcForm');
+    if (!form) return;
+    const hidden = form.querySelector('input[name="service"]');
+    const cards = Array.from(form.querySelectorAll('.svc-card'));
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        cards.forEach(c => c.setAttribute('aria-checked','false'));
+        card.setAttribute('aria-checked','true');
+        if (hidden) hidden.value = card.dataset.id;
+      });
+    });
+  })();
+</script>
+{% endblock %}
