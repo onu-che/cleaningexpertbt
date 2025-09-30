@@ -1,0 +1,142 @@
+{% extends "booknow/base_booknow.html" %}
+{% block bn_content %}{% with current_step="schedule" %}
+
+<style>
+  /* ---------- Schedule Step Internal Styles ---------- */
+
+  /* Narrow, centered container for stepper + content */
+  .sch-container{
+    max-width: 760px; /* adjust to 820/900px if you prefer */
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  /* Title + subtitle */
+  .sch-title{ text-align:center; margin:.25rem 0 .5rem; }
+  .sch-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+
+  /* Card/form */
+  .sch-form{ background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px; }
+  .sch-form label{ display:flex; flex-direction:column; gap:.35rem; margin:.5rem 0; font-weight:600; color:#0b1520; }
+  .sch-form input,.sch-form select{
+    border:1px solid #e8edf3; border-radius:10px; padding:.6rem .7rem; font-size:15px;
+  }
+  .sch-form input:focus,.sch-form select:focus{
+    outline:0; box-shadow:0 0 0 3px rgba(14,63,104,.25); border-color:#0e3f68;
+  }
+
+  /* Frequency pill radios */
+  .sch-freq{ display:flex; flex-wrap:wrap; gap:8px; margin:.5rem 0 1rem; }
+  .sch-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid #e8edf3; border-radius:999px; padding:.5rem .8rem; cursor:pointer; user-select:none;
+    color:#0b1520; background:#fff; transition:box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .sch-pill input{ appearance:none; width:0; height:0; margin:0; }
+  .sch-pill[data-selected="1"]{ background:#0e3f68; color:#fff; border-color:#0e3f68; box-shadow:0 0 0 3px rgba(14,63,104,.20); }
+
+  /* Actions */
+  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; gap:8px; }
+  .bn-actions button{
+    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
+    border-radius:12px; font-weight:700; cursor:pointer;
+    transition:filter .12s ease, transform .05s ease;
+  }
+  .bn-actions button:hover{ filter:brightness(.96); }
+  .bn-actions button:active{ transform:translateY(1px); }
+  .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+
+  /* Error banner */
+  .bn-error{ background:#ffe9e9; color:#b42318; padding:.6rem .75rem; border-radius:10px; border:1px solid #ffd0d0; margin-bottom:10px; }
+</style>
+
+<div class="sch-container">
+  <h1 class="sch-title">Choose Date & Time</h1>
+  <p class="sch-sub">Pick a convenient date and time. You can adjust frequency anytime.</p>
+
+  <form method="post" class="sch-form" novalidate>
+    {% csrf_token %}
+
+    {% if error %}
+      <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
+    {% endif %}
+
+    <label>Date
+      <input type="date" name="preferred_date" value="{{ sticky.preferred_date|default:'' }}" required>
+    </label>
+
+    <label>Time
+      <input type="time" name="preferred_time" step="300" list="bn-time-slots"
+             value="{{ sticky.preferred_time|default:'' }}" required>
+      <datalist id="bn-time-slots">
+        <option value="08:00"><option value="08:30"><option value="09:00">
+        <option value="09:30"><option value="10:00"><option value="10:30">
+        <option value="11:00"><option value="11:30"><option value="12:00">
+        <option value="12:30"><option value="13:00"><option value="13:30">
+        <option value="14:00"><option value="14:30"><option value="15:00">
+        <option value="15:30"><option value="16:00"><option value="16:30">
+        <option value="17:00">
+      </datalist>
+      <small>Tip: pick any time or choose a preset.</small>
+    </label>
+
+    <fieldset>
+      <legend>Frequency</legend>
+      <div class="sch-freq" id="sch-freq">
+        {% with f=sticky.frequency|default:"one_time" %}
+          <label class="sch-pill" data-selected="{% if f == 'one_time' %}1{% else %}0{% endif %}">
+            <input type="radio" name="frequency" value="one_time" {% if f == "one_time" %}checked{% endif %}>
+            One-time
+          </label>
+          <label class="sch-pill" data-selected="{% if f == 'weekly' %}1{% else %}0{% endif %}">
+            <input type="radio" name="frequency" value="weekly" {% if f == "weekly" %}checked{% endif %}>
+            Weekly
+          </label>
+          <label class="sch-pill" data-selected="{% if f == 'fortnightly' %}1{% else %}0{% endif %}">
+            <input type="radio" name="frequency" value="fortnightly" {% if f == "fortnightly" %}checked{% endif %}>
+            Fortnightly
+          </label>
+          <label class="sch-pill" data-selected="{% if f == 'monthly' %}1{% else %}0{% endif %}">
+            <input type="radio" name="frequency" value="monthly" {% if f == "monthly" %}checked{% endif %}>
+            Monthly
+          </label>
+        {% endwith %}
+      </div>
+    </fieldset>
+
+    <div class="bn-actions">
+      <button type="submit">Continue</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Respect today's date (client nicety; server already validates)
+  (function(){
+    const input = document.querySelector('input[name="preferred_date"]');
+    if (!input) return;
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth()+1).padStart(2,'0');
+    const d = String(today.getDate()).padStart(2,'0');
+    input.min = `${y}-${m}-${d}`;
+  })();
+
+  // Toggle pill selected style when radios change
+  (function(){
+    const wrap = document.getElementById('sch-freq'); if(!wrap) return;
+    wrap.addEventListener('change', function(e){
+      if(e.target && e.target.name === 'frequency'){
+        wrap.querySelectorAll('.sch-pill').forEach(p => p.dataset.selected = '0');
+        const lbl = e.target.closest('.sch-pill');
+        if (lbl) lbl.dataset.selected = '1';
+      }
+    });
+  })();
+</script>
+
+{% endwith %}{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "booknow/base_booknow.html" %}
+{% block bn_content %}{% with current_step="review" %}
+
+<style>
+  /* ---------- Review Step Internal Styles ---------- */
+
+  /* Narrow, centered container */
+  .rev-container{
+    max-width: 760px;  /* adjust to 820/900px if you want wider */
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  /* Title + subtitle */
+  .rev-title{ text-align:center; margin:.25rem 0 .5rem; }
+  .rev-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+
+  /* Summary card */
+  .rev-summary{
+    background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px;
+  }
+  .bn-summary-box h3{ margin:.2rem 0 .6rem; color:#0b1520; }
+  .bn-summary-list{ padding-left:0; list-style:none; display:grid; gap:6px; font-size:14.5px; color:#0b1520; }
+  .bn-summary-details h4{ margin:.8rem 0 .3rem; font-size:15px; color:#5b6b7a; }
+  .bn-summary-details ul{ padding-left:18px; margin:0; }
+
+  /* Edit links row */
+  .rev-edit{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    margin:.75rem 0 1rem;
+  }
+  .rev-edit a{
+    color:#0e3f68; font-weight:700; text-decoration:none; border:1px solid #e8edf3; border-radius:999px; padding:.4rem .8rem; background:#fff;
+  }
+  .rev-edit a:hover{ background:#f4f8fc; }
+
+  /* Actions */
+  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
+  .bn-actions button{
+    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
+    border-radius:12px; font-weight:700; cursor:pointer;
+    transition:filter .12s ease, transform .05s ease;
+  }
+  .bn-actions button:hover{ filter:brightness(.96); }
+  .bn-actions button:active{ transform:translateY(1px); }
+  .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+
+  /* Error banner (if the view sets one) */
+  .bn-error{ background:#ffe9e9; color:#b42318; padding:.6rem .75rem; border-radius:10px; border:1px solid #ffd0d0; margin-bottom:10px; }
+</style>
+
+<div class="rev-container">
+  <h1 class="rev-title">Review & Submit</h1>
+  <p class="rev-sub">Please confirm your booking details. You can edit any section before submitting.</p>
+
+  {% if error %}
+    <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
+  {% endif %}
+
+  <!-- In-page summary (uses your existing _summary partial) -->
+  <div class="rev-summary">
+    {% include "booknow/_summary.html" %}
+  </div>
+
+  <!-- Edit links -->
+  <div class="rev-edit">
+    <a href="{% url 'booknow_service' %}">Change Service</a>
+    <a href="{% url 'booknow_details' %}">Edit Details</a>
+    <a href="{% url 'booknow_schedule' %}">Edit Schedule</a>
+    <a href="{% url 'booknow_contact' %}">Edit Contact</a>
+  </div>
+
+  <!-- Submit -->
+  <form method="post">
+    {% csrf_token %}
+    <div class="bn-actions">
+      <button type="submit">Submit Booking</button>
+    </div>
+  </form>
+</div>
+
+{% endwith %}{% endblock %}

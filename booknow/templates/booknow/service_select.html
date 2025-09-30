@@ -1,0 +1,126 @@
+{% extends "booknow/base_booknow.html" %}
+{% block bn_content %}{% with current_step="service" %}
+
+<style>
+  /* ---------- Service Select (internal, scoped) ---------- */
+
+  /* Narrow container for stepper + content (desktop not full-width) */
+  .s1-container{
+    max-width: 1000px;      /* adjust 900–1100px to taste */
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  /* Titles */
+  .s1-title { text-align:center; margin:.25rem 0 .5rem; }
+  .s1-sub   { text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+
+  /* Sections (cards live inside these) */
+  .s1-section{
+    background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:12px;
+  }
+
+  /* Headings inside sections */
+  .s1-h2 { font-size:18px; margin:.75rem 0 .5rem; color:#0b1520; }
+
+  /* Responsive grids */
+  .s1-grid{ display:grid; gap:12px; }
+  .s1-grid--cats{ grid-template-columns:repeat(6,1fr); }
+  .s1-grid--svcs{ grid-template-columns:repeat(6,1fr); }
+  @media (max-width:1200px){
+    .s1-grid--cats, .s1-grid--svcs{ grid-template-columns:repeat(4,1fr); }
+  }
+  @media (max-width:900px){
+    .s1-grid--cats, .s1-grid--svcs{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width:640px){
+    .s1-grid--cats, .s1-grid--svcs{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  /* Cards (keep class .bn-card for JS) */
+  .bn-card{
+    display:flex; flex-direction:column; gap:.55rem; align-con: center;
+    border:1px solid #e8edf3; border-radius:16px; padding:.6rem;
+    background:#fff; cursor:pointer; text-align:center; outline:0;
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .bn-card:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(14,63,104,.08); }
+  .bn-card:active{ transform:translateY(0); }
+  .bn-card:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+  .bn-card img{ width:100%; aspect-ratio:16/10; object-fit:contain; border-radius:12px; background:#eef3f9; }
+  .bn-card span{ font-weight:700; color:#0b1520; font-size:14.5px; }
+
+  /* Hint row */
+  .s1-tags{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px; }
+  .s1-tag{ font-size:12px; padding:.15rem .5rem; border:1px solid #e8edf3; border-radius:999px; color:#5b6b7a; }
+
+  /* Hidden util *
+  .hidden{ display:none; }
+
+  /* Error */
+  .bn-error{ background:#ffe9e9; color:#b42318; padding:.6rem .75rem; border-radius:10px; border:1px solid #ffd0d0; margin-bottom:10px; }
+</style>
+
+<div class="s1-container">
+  <h1 class="s1-title">Select a Service</h1>
+  <p class="s1-sub">Choose a category, then tap a service to proceed. No “Next” button needed.</p>
+
+  <form method="post" id="bn-service-form">
+    {% csrf_token %}
+    <input type="hidden" name="category_slug" id="bn-category">
+    <input type="hidden" name="service_id" id="bn-service-id">
+
+    {% if error %}
+      <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
+    {% endif %}
+
+    <!-- Categories -->
+    <div class="s1-section">
+      <h2 class="s1-h2">Categories</h2>
+      <div class="s1-grid s1-grid--cats" id="bn-cats">
+        {% for cat in categories %}
+          <button type="button" class="bn-card" data-category="{{ cat.slug }}">
+            <img src="/static/booknow/img/{{ cat.slug }}.png" alt="{{ cat.name }}">
+            <span>{{ cat.name }}</span>
+          </button>
+        {% empty %}
+          <p>No categories yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Services (filtered; auto-submit on click) -->
+    <div class="s1-section hidden" id="bn-services">
+      <h2 class="s1-h2">Available Services</h2>
+      <div class="s1-grid s1-grid--svcs">
+        {% for svc in services %}
+          <button
+            type="button"
+            class="bn-card"
+            data-service="{{ svc.id }}"
+            data-service-key="{{ svc.slug }}"
+            data-category="{{ svc.category.slug }}"
+          >
+            {% if svc.hero_image %}
+              <img src="{{ svc.hero_image }}" alt="{{ svc.name }}">
+            {% else %}
+              <img src="/static/booknow/img/{{ svc.slug }}.png" alt="{{ svc.name }}">
+            {% endif %}
+            <span>{{ svc.name }}</span>
+          </button>
+        {% empty %}
+          <p>No services yet.</p>
+        {% endfor %}
+      </div>
+      <div class="s1-tags" aria-hidden="true">
+        <span class="s1-tag">Tap a card to continue →</span>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endwith %}{% endblock %}

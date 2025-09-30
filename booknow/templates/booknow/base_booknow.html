@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+  <link rel="stylesheet" href="{% static 'booknow/css/booknow.css' %}">
+
+  <div class="bn-wrap">
+    <div class="bn-container">
+
+      <!-- NEW: centered, constrained wrapper for stepper & any outside text -->
+      <div class="bn-prose">
+        {% include "booknow/_stepper.html" with current_step=current_step %}
+        {# Optional place for a short intro or page notice #}
+        {% block bn_intro %}{% endblock %}
+      </div>
+
+      <!-- Centered card for the actual step content -->
+      <div class="bn-center">
+        {% if error %}
+          <div class="bn-error" role="alert">{{ error }}</div>
+        {% endif %}
+        {% block bn_content %}{% endblock %}
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{% static 'booknow/js/booknow.js' %}"></script>
+{% endblock %}

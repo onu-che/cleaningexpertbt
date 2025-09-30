@@ -1,0 +1,82 @@
+{% extends "booknow/base_booknow.html" %}
+{% load static %}
+{% load dict_get %}
+
+{% block bn_content %}{% with current_step="details" %}
+
+<style>
+  /* ---------- Details Step Internal Styles ---------- */
+
+  /* Narrow container for stepper + content */
+  .d1-container{
+    max-width: 760px;  /* adjust to 820/900px if you want wider */
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  /* Title + subtitle */
+  .d1-title{ text-align:center; margin:.25rem 0 .5rem; }
+  .d1-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+
+  /* Form styling */
+  .d1-form{ background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px; }
+  .d1-form label{ display:flex; flex-direction:column; gap:.35rem; margin:.5rem 0; font-weight:600; color:#0b1520; }
+  .d1-form input,.d1-form select,.d1-form textarea{
+    border:1px solid #e8edf3; border-radius:10px; padding:.6rem .7rem; font-size:15px;
+  }
+  .d1-form input:focus,.d1-form select:focus,.d1-form textarea:focus{
+    outline:0; box-shadow:0 0 0 3px rgba(14,63,104,.25); border-color:#0e3f68;
+  }
+  .d1-form textarea{ min-height:80px; resize:vertical; }
+
+  /* Actions */
+  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
+  .bn-actions button{
+    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
+    border-radius:12px; font-weight:700; cursor:pointer;
+    transition:filter .12s ease, transform .05s ease;
+  }
+  .bn-actions button:hover{ filter:brightness(.96); }
+  .bn-actions button:active{ transform:translateY(1px); }
+  .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+</style>
+
+<div class="d1-container">
+  <h1 class="d1-title">Service Details</h1>
+  <p class="d1-sub">Tell us more, this helps us prepare the right team.</p>
+
+  <form method="post" class="d1-form" novalidate>
+    {% csrf_token %}
+
+    {% for f in schema %}
+      {% with val=state.details|get_item:f.name %}
+      <label>
+        {{ f.label }}
+        {% if f.type == "number" %}
+          <input type="number" name="{{ f.name }}" value="{{ val|default:'' }}" {% if f.min %}min="{{ f.min }}"{% endif %}>
+        {% elif f.type == "select" %}
+          <select name="{{ f.name }}">
+            {% for opt in f.options %}
+              <option value="{{ opt.0 }}" {% if val == opt.0 %}selected{% endif %}>{{ opt.1 }}</option>
+            {% endfor %}
+          </select>
+        {% elif f.type == "textarea" %}
+          <textarea name="{{ f.name }}">{{ val|default:'' }}</textarea>
+        {% else %}
+          <input type="text" name="{{ f.name }}" value="{{ val|default:'' }}">
+        {% endif %}
+      </label>
+      {% endwith %}
+    {% endfor %}
+
+    <div class="bn-actions">
+      <button type="submit">Continue</button>
+    </div>
+  </form>
+</div>
+
+{% endwith %}{% endblock %}

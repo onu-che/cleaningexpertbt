@@ -93,8 +93,8 @@
         <a href="/portfolio/">Portfolio</a>
         <!-- <a href="/blog/">Blog</a> -->
         <a href="/contact/">Contact</a>
-        <a href="/booking/" class="cta" style="color: rgba(14, 63, 104);">Book Now</a>
-        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
+        <a href="{% url 'booknow_start' %}" class="cta" style="color: rgba(14, 63, 104);">Book Now</a>
+        <!-- <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a> -->
     </div>
 
     <!-- Hamburger (mobile only) -->
@@ -112,8 +112,8 @@
         <a href="/portfolio/" class="m-link">Portfolio</a>
         <!-- <a href="/blog/" class="m-link">Blog</a> -->
         <a href="/contact/" class="m-link">Contact</a>
-        <a href="/booking/" class="m-cta"style="color: rgba(14, 63, 104);">Book Now</a>
-        <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a>
+        <a href="{% url 'booknow_start' %}" class="m-cta"style="color: rgba(14, 63, 104);">Book Now</a>
+        <!-- <a href="#" class="btn-outline js-open-quote">Get an Instant Quote</a> -->
     </div>
     </div>
   </header>
@@ -192,7 +192,7 @@
         <div>
           <h4>Quick Links</h4>
           <p><a href="/services/">Our Services</a></p>
-          <p><a href="/booking/">Get a Quote</a></p>
+          <p><a href="{% url 'booknow_start' %}">Get a Quote</a></p>
           <p><a href="/contact/">Contact</a></p>
           <p><a href="/privacy/">Privacy</a></p>
         </div>

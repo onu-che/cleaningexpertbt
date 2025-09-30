@@ -1,0 +1,37 @@
+<nav class="bn-steps" aria-label="Booking steps" 
+style=" 
+.bn-steps {
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  margin: 10px 0 16px;
+}
+
+.bn-steps ol {
+  display: flex;
+  gap: 18px;                 /* space between steps */
+  list-style: none;          /* remove numbers */
+  padding: 0;
+  margin: 0;
+}
+
+.bn-steps li {
+  font-weight: 600;
+  color: #5b6b7a;
+}
+
+.bn-steps li.active {
+  color: var(--brand-blue, #1f57c3);
+  font-weight: 700;
+  border-bottom: 2px solid var(--brand-blue, #1f57c3); /* optional highlight */
+}
+">
+  {% with s=current_step|default:"service" %}
+  <ol>
+    <li class="{% if s == 'service' %}active{% endif %}" {% if s == 'service' %}aria-current="step"{% endif %}>Service</li>
+    <li class="{% if s == 'details' %}active{% endif %}" {% if s == 'details' %}aria-current="step"{% endif %}>Details</li>
+    <li class="{% if s == 'schedule' %}active{% endif %}" {% if s == 'schedule' %}aria-current="step"{% endif %}>Schedule</li>
+    <li class="{% if s == 'contact' %}active{% endif %}" {% if s == 'contact' %}aria-current="step"{% endif %}>Contact</li>
+    <li class="{% if s == 'review' %}active{% endif %}" {% if s == 'review' %}aria-current="step"{% endif %}>Review</li>
+  </ol>
+  {% endwith %}
+</nav>

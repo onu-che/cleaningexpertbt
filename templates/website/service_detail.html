@@ -81,8 +81,8 @@
       </div>
 
       <div class="aside-cta">
-        <a href="/booking/?service={{ svc.id }}" class="btn-primary" style="width:100%;justify-content:center">Book Now</a>
-        <a href="/contact/?subject=Quote" class="btn-outline aside-cta-btn"></a>
+        <a href="{% url 'booknow_start' %}" class="btn-primary" style="width:100%;justify-content:center">Book Now</a>
+        <a href="{% url 'booknow_start' %}" class="btn-outline aside-cta-btn"></a>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="vertical-align:middle;margin-right:8px;">
             <path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <rect x="3" y="8" width="18" height="10" rx="2" fill="#f3f4f6" stroke="#3b82f6" stroke-width="2"/>

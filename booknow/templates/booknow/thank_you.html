@@ -1,0 +1,51 @@
+{% extends "booknow/base_booknow.html" %}
+{% block bn_content %}
+
+<style>
+  /* ---------- Thank You Step Internal Styles ---------- */
+
+  .ty-container{
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+    text-align:center;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  .ty-icon{
+    width:72px; height:72px; margin:0 auto 1rem;
+    border-radius:50%; background:#e6f4ea; display:flex;
+    align-items:center; justify-content:center; font-size:36px; color:#14804a;
+  }
+
+  .ty-title{ font-size:24px; margin:.25rem 0 .5rem; color:#0b1520; }
+  .ty-sub{ font-size:15px; color:#5b6b7a; margin-bottom:1.25rem; }
+
+  .ty-actions{ margin-top:1rem; }
+  .ty-actions a{
+    display:inline-block; background:#0e3f68; color:#fff; text-decoration:none;
+    padding:.75rem 1.25rem; border-radius:12px; font-weight:700;
+    transition:filter .12s ease, transform .05s ease;
+  }
+  .ty-actions a:hover{ filter:brightness(.96); }
+  .ty-actions a:active{ transform:translateY(1px); }
+  .ty-actions a:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+</style>
+
+<div class="ty-container">
+  <div class="ty-icon">✓</div>
+  <h1 class="ty-title">Thank You!</h1>
+  <p class="ty-sub">
+    Your booking has been submitted successfully.<br>
+    We’ve sent a confirmation email with your details.
+  </p>
+
+  <div class="ty-actions">
+    <a href="/">Back to Home</a>
+  </div>
+</div>
+
+{% endblock %}

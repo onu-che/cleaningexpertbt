@@ -23,7 +23,7 @@ from crm.views import admin_dashboard
 from django.views.generic import TemplateView
 from website.sitemaps import StaticPagesSitemap
 from bookings.views import instant_quote
-
+from django.views.generic import RedirectView
 
 sitemaps = {"static": StaticPagesSitemap()}
 
@@ -36,8 +36,12 @@ urlpatterns = [
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("instant-quote/", instant_quote, name="instant_quote"),
+    path("book-now/", include("booknow.urls")), 
+    path("booking/", RedirectView.as_view(url="/book-now/", permanent=True)),
+    path("bookings/", RedirectView.as_view(url="/book-now/", permanent=True)),
+    path("instant-quote/", RedirectView.as_view(url="/book-now/", permanent=True)),
+    
 
 ]
-
 
 

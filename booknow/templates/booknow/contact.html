@@ -1,0 +1,117 @@
+{% extends "booknow/base_booknow.html" %}
+{% block bn_content %}{% with current_step="contact" %}
+
+<style>
+  /* ---------- Contact Step Internal Styles ---------- */
+
+  /* Narrow, centered container */
+  .c1-container{
+    max-width: 760px;  /* adjust to 820/900px if you want wider */
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Center stepper pills */
+  .bn-steps{ margin-bottom: 14px; }
+  .bn-steps ol{ display:flex; justify-content:center; }
+
+  /* Title + subtitle */
+  .c1-title{ text-align:center; margin:.25rem 0 .5rem; }
+  .c1-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+
+  /* Card/form */
+  .c1-form{ background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px; }
+  .c1-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:700px){ .c1-row{ grid-template-columns:1fr; } }
+
+  .c1-form label{ display:flex; flex-direction:column; gap:.35rem; margin:.5rem 0; font-weight:600; color:#0b1520; }
+  .c1-form input,.c1-form select{
+    border:1px solid #e8edf3; border-radius:10px; padding:.6rem .7rem; font-size:15px;
+  }
+  .c1-form input:focus,.c1-form select:focus{
+    outline:0; box-shadow:0 0 0 3px rgba(14,63,104,.25); border-color:#0e3f68;
+  }
+
+  /* Actions */
+  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+  .bn-actions .bn-btn, .bn-actions button{
+    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
+    border-radius:12px; font-weight:700; cursor:pointer;
+    transition:filter .12s ease, transform .05s ease;
+  }
+  .bn-actions .bn-btn:hover, .bn-actions button:hover{ filter:brightness(.96); }
+  .bn-actions .bn-btn:active, .bn-actions button:active{ transform:translateY(1px); }
+  .bn-actions .bn-btn:focus-visible, .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
+
+  /* Error banner */
+  .bn-error{ background:#ffe9e9; color:#b42318; padding:.6rem .75rem; border-radius:10px; border:1px solid #ffd0d0; margin-bottom:10px; }
+</style>
+
+<div class="c1-container">
+  <h1 class="c1-title">Your Details</h1>
+  <p class="c1-sub">We’ll use these to confirm your booking and reach you if needed.</p>
+
+  <form method="post" class="c1-form" novalidate>
+    {% csrf_token %}
+
+    {% if error %}
+      <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
+    {% endif %}
+
+    <!-- Contact -->
+    <div class="c1-row">
+      <label>Name
+        <input name="name" value="{{ sticky.name|default:'' }}" required>
+      </label>
+      <label>Email
+        <input type="email" name="email" value="{{ sticky.email|default:'' }}" required>
+      </label>
+    </div>
+    <div class="c1-row">
+      <label>Phone
+        <input name="phone" value="{{ sticky.phone|default:'' }}" required>
+      </label>
+      <span></span>
+    </div>
+
+    <h3 style="margin:.5rem 0 .25rem;color:#0b1520;">Service Address (Australia)</h3>
+    <label>Address line
+      <input name="address_line" value="{{ sticky.address_line|default:'' }}" required>
+    </label>
+
+    <div class="c1-row">
+      <label>Suburb
+        <input name="suburb" value="{{ sticky.suburb|default:'' }}" required>
+      </label>
+      <label>State
+        {% with s=sticky.state|default:'' %}
+        <select name="state" required>
+          <option value="">Select</option>
+          <option {% if s == "NSW" %}selected{% endif %}>NSW</option>
+          <option {% if s == "VIC" %}selected{% endif %}>VIC</option>
+          <option {% if s == "QLD" %}selected{% endif %}>QLD</option>
+          <option {% if s == "SA" %}selected{% endif %}>SA</option>
+          <option {% if s == "WA" %}selected{% endif %}>WA</option>
+          <option {% if s == "TAS" %}selected{% endif %}>TAS</option>
+          <option {% if s == "ACT" %}selected{% endif %}>ACT</option>
+          <option {% if s == "NT" %}selected{% endif %}>NT</option>
+        </select>
+        {% endwith %}
+      </label>
+    </div>
+
+    <div class="c1-row">
+      <label>Postcode
+        <input name="postcode" pattern="\d{4}" placeholder="e.g., 2000" value="{{ sticky.postcode|default:'' }}" required>
+      </label>
+      <span></span>
+    </div>
+
+    <div class="bn-actions">
+      <a class="bn-btn" href="{% url 'booknow_schedule' %}">Back</a>
+      <button type="submit">Continue</button>
+    </div>
+  </form>
+</div>
+
+{% endwith %}{% endblock %}
