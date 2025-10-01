@@ -17,16 +17,20 @@ SESSION_KEY = "booknow"
 
 
 
-
-
-
 import logging
+from django.core.mail import send_mail
 from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
 def safe_send_mail(subject, message, to_list):
     try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list, fail_silently=False)
+        send_mail(
+            subject, message,
+            settings.DEFAULT_FROM_EMAIL,
+            to_list,
+            fail_silently=False
+        )
         return True
     except Exception as e:
         logger.exception("Email send failed: %s", e)
@@ -389,14 +393,42 @@ def _make_customer_email_subject(b: Booking):
     return f"Booking received – {b.service.name}"
 
 def _make_customer_email_body(b: Booking):
-    return (
-        f"Hi {b.name},\n\n"
-        f"Thanks for your booking for {b.service.name}.\n"
-        f"Requested: {b.preferred_date} at {b.preferred_time} ({b.get_frequency_display()}).\n\n"
-        "We’ll confirm availability shortly. If anything changes, just reply to this email.\n\n"
-        "— B&T Bright Spotless Cleaning Services\n"
-        "cleaningexpertbt.com.au"
-    )
+    # Safely format date/time and frequency for email body
+    pd = getattr(b, "preferred_date", None)
+    if hasattr(pd, "strftime"):
+        pd_str = pd.strftime("%Y-%m-%d")
+    else:
+        pd_str = str(pd or "")
+
+    pt = getattr(b, "preferred_time", None)
+    if hasattr(pt, "strftime"):
+        pt_str = pt.strftime("%H:%M")
+    else:
+        pt_str = str(pt or "")
+
+    try:
+        freq = b.get_frequency_display()
+    except Exception:
+        freq = str(getattr(b, "frequency", "") or "")
+
+    name = b.name or "Customer"
+    service_name = getattr(b.service, "name", "") or ""
+    booking_ref = getattr(b, "pk", "")
+
+    lines = [
+        f"Hi {name},",
+        "",
+        f"Thanks for your booking for {service_name}.",
+        f"Requested: {pd_str} at {pt_str} ({freq}).",
+        "",
+        "We'll confirm availability shortly. If anything changes, just reply to this email.",
+        "",
+        f"Booking reference: {booking_ref}",
+        "",
+        "— Cleaning Expert BT",
+        "cleaningexpertbt.com.au",
+    ]
+    return "\n".join(lines)
 
 def _create_booking_from_session(state):
     svc = Service.objects.get(pk=state["service_id"])
@@ -437,21 +469,17 @@ def review(request):
         # 1) Create booking in DB
         booking = _create_booking_from_session(state)
 
-        # 2) Send emails (console in DEV)
+        # 2) Send emails (SMTP in prod, console in dev)
         admin_to = [getattr(settings, "BOOKING_ADMIN_EMAIL", "admin@example.com")]
-        send_mail(
+        safe_send_mail(
             _make_admin_email_subject(booking),
             _make_admin_email_body(booking),
-            settings.DEFAULT_FROM_EMAIL,
-            admin_to,
-            fail_silently=False,
+            admin_to
         )
-        send_mail(
+        safe_send_mail(
             _make_customer_email_subject(booking),
             _make_customer_email_body(booking),
-            settings.DEFAULT_FROM_EMAIL,
-            [booking.email],
-            fail_silently=False,
+            [booking.email]
         )
 
         # 3) Clear session
@@ -461,6 +489,7 @@ def review(request):
         return redirect("booknow_thank_you")
 
     return render(request, "booknow/review.html", {"state": state, "current_step": "review"})
+
 
 
 def thank_you(request):
@@ -473,10 +502,3 @@ def thank_you(request):
 
 
 # =========================================
-# booknow/views.py
-
-
-
-# booknow/views.py
-
-
