@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  /* Internal styles scoped to this page */
+  .faq-wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
+  .faq-title { text-align:center; margin: .25rem 0 .75rem; }
+  .faq-intro { text-align:center; color:#5b6b7a; margin-bottom: 1rem; }
+  .faq-grid { display:grid; gap:12px; }
+  .faq-card { background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:14px; }
+  .faq-card h3 { margin:.1rem 0 .35rem; font-size:18px; color:#0b1520; }
+  details summary { cursor:pointer; font-weight:700; color:#0b1520; }
+  details[open] summary { color:#0e3f68; }
+  .faq-cta { text-align:center; margin-top:1.25rem; }
+  .faq-cta a { display:inline-block; background:#0e3f68; color:#fff; text-decoration:none; padding:.7rem 1rem; border-radius:12px; font-weight:700; }
+</style>
+
+<div class="faq-wrap">
+  <h1 class="faq-title">Frequently Asked Questions</h1>
+  <p class="faq-intro">Quick answers to common questions about booking, pricing, access, and what to expect.</p>
+
+  <div class="faq-grid">
+
+    <div class="faq-card">
+      <h3>Booking & Quotes</h3>
+      <details>
+        <summary>How do I get a quote?</summary>
+        <p>Use <a href="/book-now/">Book Now</a>. As you choose your service and enter details (area, rooms, extras), you’ll see an estimated price (when enabled). You’ll receive confirmation by email after submitting.</p>
+      </details>
+      <details>
+        <summary>What services do you offer?</summary>
+        <p>Commercial (Office, Gym, Medical, Child Care, Pub, Strata, Post-Construction) and Residential (Regular/Deep, End-of-Lease, Laundry/Fold/Iron). If you don’t see your exact scenario, choose the closest and add notes in “Other requirements”.</p>
+      </details>
+      <details>
+        <summary>Can I book from my phone?</summary>
+        <p>Yes. The booking flow is mobile-first and takes a few minutes.</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>Pricing & Estimates</h3>
+      <details>
+        <summary>How is pricing calculated?</summary>
+        <p>Each service has a base price plus modifiers (e.g., area in sqm, number of rooms, add-ons). Recurring bookings can receive frequency discounts (weekly, fortnightly, monthly). Final pricing is confirmed after reviewing your details and access.</p>
+      </details>
+      <details>
+        <summary>Do you offer packages or discounts?</summary>
+        <p>Yes—recurring schedules may receive discounts. Package bundles (e.g., windows, oven, carpet add-ons) can be included in your booking notes for a combined quote.</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>Scheduling & Access</h3>
+      <details>
+        <summary>What days/times are available?</summary>
+        <p>Choose your preferred date/time in the booking flow. We’ll confirm availability or propose the closest slot if your first choice is not available.</p>
+      </details>
+      <details>
+        <summary>Do I need to be home?</summary>
+        <p>No—many clients provide access instructions or a lockbox code. Please include parking or fob/elevator details so we can arrive and start on time.</p>
+      </details>
+      <details>
+        <summary>Is parking required?</summary>
+        <p>On-site or nearby parking helps us start quickly and bring equipment safely. If parking is limited, add guidance in the booking (“Parking/Access details”).</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>What’s Included</h3>
+      <details>
+        <summary>Do you bring supplies and equipment?</summary>
+        <p>Yes, our teams bring professional products and tools suitable for homes and commercial spaces. If you prefer specific products, mention them in your notes.</p>
+      </details>
+      <details>
+        <summary>Are you insured and vetted?</summary>
+        <p>Yes. Our cleaners are background-checked and fully insured, and we stand behind our work with a satisfaction policy. (This mirrors Sydney market expectations of insured, vetted cleaners.) :contentReference[oaicite:0]{index=0}</p>
+      </details>
+      <details>
+        <summary>Do you clean NDIS or medical facilities?</summary>
+        <p>Yes—choose Medical Cleaning for clinics/consult rooms; add compliance notes (e.g., infection control) in the Details step.</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>Guarantee & Cancellations</h3>
+      <details>
+        <summary>What if I’m not happy?</summary>
+        <p>Let us know within 24 hours and we’ll make it right quickly—reclean the missed areas or discuss an appropriate remedy. This aligns with the “make it right” approach common among leading Sydney cleaners. :contentReference[oaicite:1]{index=1}</p>
+      </details>
+      <details>
+        <summary>How do I reschedule or cancel?</summary>
+        <p>Reply to your booking email or contact us at least 24 hours in advance. Short-notice changes may incur a fee to cover allocated time and travel.</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>Payments</h3>
+      <details>
+        <summary>How do I pay?</summary>
+        <p>Right now, you pay on confirmation/invoice. Card payments (via Stripe) and deposits will be available soon in the Review step.</p>
+      </details>
+      <details>
+        <summary>Do you issue invoices/receipts?</summary>
+        <p>Yes—every completed booking receives an invoice/receipt by email for your records.</p>
+      </details>
+    </div>
+
+    <div class="faq-card">
+      <h3>Move-Out & Post-Construction</h3>
+      <details>
+        <summary>End-of-Lease cleaning requirements?</summary>
+        <p>Include your agent’s checklist in “Other requirements” so we can align with bond expectations (oven, inside cupboards, skirting, tracks, etc.).</p>
+      </details>
+      <details>
+        <summary>Post-construction dust & debris?</summary>
+        <p>We handle builders’ dust with HEPA-capable tools and multiple passes. Please note any fragile surfaces or special finishes.</p>
+      </details>
+    </div>
+
+  </div>
+
+  <div class="faq-cta">
+    <a href="/book-now/">Book Now</a>
+  </div>
+</div>
+
+{% endblock %}

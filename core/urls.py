@@ -25,6 +25,7 @@ from website.sitemaps import StaticPagesSitemap
 from bookings.views import instant_quote
 from django.views.generic import RedirectView
 
+
 sitemaps = {"static": StaticPagesSitemap()}
 
 
@@ -40,8 +41,11 @@ urlpatterns = [
     path("booking/", RedirectView.as_view(url="/book-now/", permanent=True)),
     path("bookings/", RedirectView.as_view(url="/book-now/", permanent=True)),
     path("instant-quote/", RedirectView.as_view(url="/book-now/", permanent=True)),
+    path("faq/", TemplateView.as_view(template_name="faq.html"), name="faq"),
+    path("book-now/", include("booknow.urls")),
     
 
 ]
+
 
 
