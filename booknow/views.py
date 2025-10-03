@@ -249,10 +249,12 @@ def schedule(request):
         return redirect("booknow_service")
 
     ctx = {"state": state, "current_step": "schedule"}
+
     if request.method == "POST":
         preferred_date = (request.POST.get("preferred_date") or "").strip()
         preferred_time = (request.POST.get("preferred_time") or "").strip()
         frequency = (request.POST.get("frequency") or "one_time").strip()
+        access_window = (request.POST.get("access_window") or "").strip()
 
         # Validate
         error = None
@@ -271,24 +273,30 @@ def schedule(request):
 
         if error:
             ctx["error"] = error
-            # keep sticky values in session draft (but don’t commit if invalid)
-            ctx["sticky"] = {"preferred_date": preferred_date, "preferred_time": preferred_time, "frequency": frequency}
+            ctx["sticky"] = {
+                "preferred_date": preferred_date,
+                "preferred_time": preferred_time,
+                "frequency": frequency,
+                "access_window": access_window,
+            }
             return render(request, "booknow/schedule.html", ctx)
 
-        # Save
+        # Save validated schedule into session/state
         state.update({
             "preferred_date": preferred_date,
             "preferred_time": preferred_time,
             "frequency": frequency or "one_time",
+            "access_window": access_window,
         })
         _save_state(request, state)
         return redirect("booknow_contact")
 
     # GET — sticky if present
     ctx["sticky"] = {
-        "preferred_date": state.get("preferred_date",""),
-        "preferred_time": state.get("preferred_time",""),
-        "frequency": state.get("frequency","one_time"),
+        "preferred_date": state.get("preferred_date", ""),
+        "preferred_time": state.get("preferred_time", ""),
+        "frequency": state.get("frequency", "one_time"),
+        "access_window": state.get("access_window", ""),
     }
     return render(request, "booknow/schedule.html", ctx)
 
@@ -309,6 +317,7 @@ def contact(request):
             "suburb": (request.POST.get("suburb") or "").strip(),
             "state": (request.POST.get("state") or "").strip().upper(),
             "postcode": (request.POST.get("postcode") or "").strip(),
+            "parking_notes": (request.POST.get("parking_notes") or "").strip(),
         }
 
         # Validate
@@ -316,18 +325,14 @@ def contact(request):
         if not contact["name"] or not contact["email"] or not contact["phone"]:
             error = "Name, email, and phone are required."
         else:
-            # Email
             try:
                 validate_email(contact["email"])
             except ValidationError:
                 error = "Please enter a valid email address."
-            # AU state
             if not error and contact["state"] not in AU_STATES:
                 error = "Please select a valid Australian state."
-            # Postcode: 4 digits
             if not error and (len(contact["postcode"]) != 4 or not contact["postcode"].isdigit()):
                 error = "Postcode must be 4 digits (e.g., 2000)."
-            # Address fields
             if not error and (not contact["address_line"] or not contact["suburb"]):
                 error = "Please complete the service address."
 
@@ -367,68 +372,33 @@ def _make_admin_email_subject(b: Booking):
 
 
 def _make_admin_email_body(b: Booking):
-    lines = [
-        "NEW BOOKING",
-        f"Service: {b.service.name}",
-        f"Frequency: {b.get_frequency_display()}",
-        f"Preferred: {b.preferred_date} at {b.preferred_time}",
-        "",
-        "CUSTOMER",
-        f"Name: {b.name}",
-        f"Email: {b.email}",
-        f"Phone: {b.phone}",
-        "",
-        "ADDRESS",
-        f"{b.address_line}, {b.suburb} {b.state} {b.postcode}",
-        "",
-        "DETAILS (JSON)",
-        f"{b.details}",
-        "",
-        f"Status: {b.get_status_display()}",
-        f"Created: {b.created_at:%Y-%m-%d %H:%M}",
-    ]
-    return "\n".join(lines)
+    return (
+        "NEW BOOKING\n"
+        f"Service: {b.service.name}\n"
+        f"Customer: {b.name} <{b.email}>\n"
+        f"Address: {b.address_line}, {b.suburb} {b.state} {b.postcode}\n"
+        f"Preferred: {b.preferred_date} {b.preferred_time}\n"
+        f"Access window: {b.access_window or '-'}\n"
+        f"Parking/access: {b.parking_notes or '-'}\n"
+        f"\nStatus: {b.get_status_display()}\n"
+        f"Created: {b.created_at:%Y-%m-%d %H:%M}\n"
+    )
 
 def _make_customer_email_subject(b: Booking):
     return f"Booking received – {b.service.name}"
 
 def _make_customer_email_body(b: Booking):
-    # Safely format date/time and frequency for email body
-    pd = getattr(b, "preferred_date", None)
-    if hasattr(pd, "strftime"):
-        pd_str = pd.strftime("%Y-%m-%d")
-    else:
-        pd_str = str(pd or "")
-
-    pt = getattr(b, "preferred_time", None)
-    if hasattr(pt, "strftime"):
-        pt_str = pt.strftime("%H:%M")
-    else:
-        pt_str = str(pt or "")
-
-    try:
-        freq = b.get_frequency_display()
-    except Exception:
-        freq = str(getattr(b, "frequency", "") or "")
-
-    name = b.name or "Customer"
-    service_name = getattr(b.service, "name", "") or ""
-    booking_ref = getattr(b, "pk", "")
-
-    lines = [
-        f"Hi {name},",
-        "",
-        f"Thanks for your booking for {service_name}.",
-        f"Requested: {pd_str} at {pt_str} ({freq}).",
-        "",
-        "We'll confirm availability shortly. If anything changes, just reply to this email.",
-        "",
-        f"Booking reference: {booking_ref}",
-        "",
-        "— Cleaning Expert BT",
-        "cleaningexpertbt.com.au",
-    ]
-    return "\n".join(lines)
+    booking_ref = getattr(b, "id", None)
+    return (
+        f"Service: {b.service.name}\n"
+        f"Date & time: {b.preferred_date} {b.preferred_time}\n"
+        f"Access window: {b.access_window or '-'}\n"
+        f"Parking/access: {b.parking_notes or '-'}\n\n"
+        "We'll confirm availability shortly. If anything changes, just reply to this email.\n\n"
+        f"Booking reference: #{booking_ref or 'N/A'}\n\n"
+        "— Cleaning Expert BT\n"
+        "cleaningexpertbt.com.au\n"
+    )
 
 def _create_booking_from_session(state):
     svc = Service.objects.get(pk=state["service_id"])
@@ -447,7 +417,9 @@ def _create_booking_from_session(state):
         preferred_time=_parse_time(state["preferred_time"]),
         frequency=state.get("frequency","one_time"),
         status=Booking.ST_NEW,
+
     )
+
     return b
 
 

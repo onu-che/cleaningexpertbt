@@ -107,6 +107,13 @@
       <span></span>
     </div>
 
+    <label>Parking / access details (optional)
+      <input name="parking_notes"
+             placeholder="e.g., visitor parking, loading dock, key/fob instructions"
+             value="{{ sticky.parking_notes|default:'' }}">
+      <small>Parking or entry info helps us arrive and start on time.</small>
+    </label>
+
     <div class="bn-actions">
       <a class="bn-btn" href="{% url 'booknow_schedule' %}">Back</a>
       <button type="submit">Continue</button>

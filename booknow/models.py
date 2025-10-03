@@ -77,6 +77,15 @@ class Booking(models.Model):
     # Workflow
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=ST_NEW)
 
+    # Parking + Availability.
+    parking_notes = models.CharField(max_length=200, blank=True)
+    access_window = models.CharField(
+        max_length=100, blank=True,
+        help_text="e.g., 8–10am window or 'after 5pm'."
+    )
+
+
+
     # Tracking
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
@@ -91,3 +100,6 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"#{self.pk} {self.service.name} · {self.name} · {self.suburb}"
+
+
+

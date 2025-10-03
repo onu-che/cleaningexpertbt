@@ -22,7 +22,7 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ("id", "created_at", "service", "name", "phone", "status", "frequency")
+    list_display = ("id","service","name","email","preferred_date","preferred_time","frequency","status")
     list_filter = ("status", "frequency", "service", "created_at")
     search_fields = ("name", "email", "phone", "service__name", "suburb", "postcode")
     date_hierarchy = "created_at"
@@ -30,10 +30,12 @@ class BookingAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
 
     fieldsets = (
-        ("Service", {"fields": ("service",)}),
-        ("Customer", {"fields": ("name", "email", "phone")}),
-        ("Address (AU)", {"fields": ("address_line", "suburb", "state", "postcode")}),
-        ("Details", {"fields": ("details",)}),
-        ("Schedule", {"fields": ("preferred_date", "preferred_time", "frequency")}),
-        ("Tracking", {"fields": ("status", "created_at", "updated_at")}),
+        ("Service", {"fields": ("service","status","price_estimate")}),
+        ("Customer", {"fields": ("name","email","phone")}),
+        ("Address", {"fields": ("address_line","suburb","state","postcode")}),
+        ("Schedule", {"fields": ("preferred_date","preferred_time","frequency","access_window")}),
+        ("Details", {"fields": ("details", "parking_notes")}),
+        ("Tracking", {"fields": ("created_at","updated_at")}),
     )
+
+

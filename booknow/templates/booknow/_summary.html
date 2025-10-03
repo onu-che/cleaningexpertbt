@@ -6,10 +6,12 @@
     <li><strong>Service:</strong> {{ st.service_name|default:st.service_id }}</li>
     <li><strong>Date:</strong> {{ st.preferred_date|default:"—" }}</li>
     <li><strong>Time:</strong> {{ st.preferred_time|default:"—" }}</li>
+    <li><strong>Access window:</strong> {{ st.access_window|default:"—" }}</li>
     <li><strong>Frequency:</strong> {{ st.frequency|default:"—" }}</li>
     <li><strong>Name:</strong> {{ st.contact.name|default:"—" }}</li>
     <li><strong>Phone:</strong> {{ st.contact.phone|default:"—" }}</li>
     <li><strong>Email:</strong> {{ st.contact.email|default:"—" }}</li>
+    <li><strong>Parking/access:</strong> {{ st.contact.parking_notes|default:"—" }}</li>
     <li><strong>Address:</strong>
       {% if st.contact.address_line %}
         {{ st.contact.address_line }}, {{ st.contact.suburb }} {{ st.contact.state }} {{ st.contact.postcode }}

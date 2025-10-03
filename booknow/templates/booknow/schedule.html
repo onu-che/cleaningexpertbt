@@ -108,6 +108,13 @@
       </div>
     </fieldset>
 
+    <label>Preferred access window (optional)
+      <input type="text" name="access_window"
+            placeholder="e.g., 8–10am, after school run, or 5–7pm"
+            value="{{ sticky.access_window|default:'' }}">
+      <small>Tell us a window so we can plan arrival and team allocation.</small>
+    </label>
+
     <div class="bn-actions">
       <button type="submit">Continue</button>
     </div>
