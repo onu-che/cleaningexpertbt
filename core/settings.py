@@ -139,3 +139,17 @@ if EMAIL_HOST and EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# ================================================================================================
+
+def env_bool(name: str, default="False") -> bool:
+    return os.getenv(name, default).strip().lower() in {"1","true","yes","on"}
+
+# Feature flags
+ENABLE_ESTIMATOR = env_bool("ENABLE_ESTIMATOR", "False")
+ENABLE_STRIPE    = env_bool("ENABLE_STRIPE", "False")
+
+
+TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+    "core.context_processors.flags",
+]
