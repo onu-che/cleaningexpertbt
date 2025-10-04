@@ -1,0 +1,16 @@
+Hi {{ booking.name|default:"there" }},
+
+Thanks for booking {{ booking.service.name }} with Cleaning Expert.
+
+Summary
+- Preferred: {{ booking.preferred_date }} at {{ booking.preferred_time }}
+- Frequency: {{ booking.get_frequency_display|default:booking.frequency }}
+- Estimated price: {{ estimate_display }}
+
+What happens next
+Our team will confirm availability and final pricing by email or phone shortly.
+
+If anything needs updating, reply to this email.
+
+Thanks,
+Cleaning Expert

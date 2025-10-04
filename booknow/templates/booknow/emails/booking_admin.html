@@ -1,0 +1,23 @@
+<!doctype html><html><body style="font-family:system-ui,Segoe UI,Arial,sans-serif;">
+  <h2>New booking received</h2>
+  <p><strong>Service:</strong> {{ booking.service.name }}<br>
+     <strong>Preferred:</strong> {{ booking.preferred_date }} at {{ booking.preferred_time }}<br>
+     <strong>Frequency:</strong> {{ booking.get_frequency_display|default:booking.frequency }}</p>
+
+  <h3>Customer</h3>
+  <p><strong>Name:</strong> {{ booking.name }}<br>
+     <strong>Email:</strong> {{ booking.email }}<br>
+     <strong>Phone:</strong> {{ booking.phone }}</p>
+
+  <h3>Address</h3>
+  <p>{{ booking.address_line }}<br>
+     {{ booking.suburb }}, {{ booking.state }} {{ booking.postcode }}</p>
+
+  <h3>Details</h3>
+  <pre style="background:#f6f8fa;padding:10px;border-radius:8px;border:1px solid #e5e7eb;">{{ booking.details|default:"{}" }}</pre>
+
+  <p style="font-size:16px;"><strong>Estimated price:</strong> {{ estimate_display }}</p>
+
+  <p><strong>Status:</strong> {{ booking.get_status_display|default:booking.status }}<br>
+     <strong>Created:</strong> {{ booking.created_at }}</p>
+</body></html>

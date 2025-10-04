@@ -1,82 +1,218 @@
 {% extends "booknow/base_booknow.html" %}
-{% load static %}
-{% load dict_get %}
-
 {% block bn_content %}{% with current_step="details" %}
 
 <style>
-  /* ---------- Details Step Internal Styles ---------- */
+  /* Layout */
+  .d1-container{max-width:960px;margin:0 auto;padding:0 16px;}
+  .bn-steps{margin-bottom:14px;}
+  .bn-steps ol{display:flex;justify-content:center;}
+  .d1-title{text-align:center;margin:.25rem 0 .5rem;}
+  .d1-sub{text-align:center;color:#5b6b7a;font-size:14.5px;margin-bottom:.75rem;}
 
-  /* Narrow container for stepper + content */
-  .d1-container{
-    max-width: 760px;  /* adjust to 820/900px if you want wider */
-    margin: 0 auto;
-    padding: 0 16px;
+  /* Card & form */
+  .d1-card{background:#fff;border:1px solid #e8edf3;border-radius:12px;padding:16px;}
+  .d1-form{display:grid;gap:14px;}
+  .d1-row{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media (max-width:720px){.d1-row{grid-template-columns:1fr;}}
+  label{font-weight:700;color:#0b1520;margin-bottom:4px;display:block;}
+  .d1-field small{color:#5b6b7a;font-size:12.5px;margin-top:4px;}
+  input[type="text"],input[type="number"],select,textarea{
+    width:100%;border:1px solid #dbe4ee;border-radius:10px;padding:.6rem .7rem;font-size:14.5px;background:#fff;
   }
+  textarea{min-height:96px;resize:vertical}
+  input[type="checkbox"]{transform:scale(1.1);margin-right:.5rem}
 
-  /* Center stepper pills */
-  .bn-steps{ margin-bottom: 14px; }
-  .bn-steps ol{ display:flex; justify-content:center; }
+  .d1-actions{display:flex;justify-content:space-between;gap:10px;margin-top:.75rem;}
+  .btn{border:1px solid #0e3f68;background:#0e3f68;color:#fff;border-radius:12px;padding:.7rem 1.1rem;font-weight:800;cursor:pointer;}
+  .btn.outline{background:#fff;color:#0e3f68}
+  .bn-error{background:#ffe9e9;color:#b42318;padding:.6rem .75rem;border-radius:10px;border:1px solid #ffd0d0;margin-bottom:10px;}
 
-  /* Title + subtitle */
-  .d1-title{ text-align:center; margin:.25rem 0 .5rem; }
-  .d1-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
-
-  /* Form styling */
-  .d1-form{ background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px; }
-  .d1-form label{ display:flex; flex-direction:column; gap:.35rem; margin:.5rem 0; font-weight:600; color:#0b1520; }
-  .d1-form input,.d1-form select,.d1-form textarea{
-    border:1px solid #e8edf3; border-radius:10px; padding:.6rem .7rem; font-size:15px;
+  /* Floating estimator */
+  .est-float{
+    position:fixed;top:84px;right:16px;z-index:50;width:280px;background:#fff;
+    border:1px solid #e8edf3;border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(14,63,104,.10);
   }
-  .d1-form input:focus,.d1-form select:focus,.d1-form textarea:focus{
-    outline:0; box-shadow:0 0 0 3px rgba(14,63,104,.25); border-color:#0e3f68;
+  .est-float h4{margin:0 0 .35rem;font-size:15.5px;color:#0b1520;}
+  .est-row{display:flex;justify-content:space-between;font-size:14.5px;margin:.2rem 0;}
+  .est-total{font-weight:800;font-size:18px;border-top:1px dashed #e8edf3;margin-top:.5rem;padding-top:.5rem;}
+  .est-note{font-size:12.5px;color:#5b6b7a;}
+  @media (max-width:900px){
+    .est-float{position:fixed;inset:auto 8px 12px 8px;width:auto;padding:10px;border-radius:12px;}
   }
-  .d1-form textarea{ min-height:80px; resize:vertical; }
-
-  /* Actions */
-  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
-  .bn-actions button{
-    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
-    border-radius:12px; font-weight:700; cursor:pointer;
-    transition:filter .12s ease, transform .05s ease;
-  }
-  .bn-actions button:hover{ filter:brightness(.96); }
-  .bn-actions button:active{ transform:translateY(1px); }
-  .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
 </style>
 
 <div class="d1-container">
-  <h1 class="d1-title">Service Details</h1>
-  <p class="d1-sub">Tell us more, this helps us prepare the right team.</p>
+  <h1 class="d1-title">Tell us about the job</h1>
+  <p class="d1-sub">Fields change based on the service you selected. This helps us quote and schedule accurately.</p>
 
-  <form method="post" class="d1-form" novalidate>
+  <form method="post" class="d1-card d1-form" novalidate>
     {% csrf_token %}
 
-    {% for f in schema %}
-      {% with val=state.details|get_item:f.name %}
-      <label>
-        {{ f.label }}
-        {% if f.type == "number" %}
-          <input type="number" name="{{ f.name }}" value="{{ val|default:'' }}" {% if f.min %}min="{{ f.min }}"{% endif %}>
-        {% elif f.type == "select" %}
-          <select name="{{ f.name }}">
-            {% for opt in f.options %}
-              <option value="{{ opt.0 }}" {% if val == opt.0 %}selected{% endif %}>{{ opt.1 }}</option>
-            {% endfor %}
-          </select>
-        {% elif f.type == "textarea" %}
-          <textarea name="{{ f.name }}">{{ val|default:'' }}</textarea>
-        {% else %}
-          <input type="text" name="{{ f.name }}" value="{{ val|default:'' }}">
-        {% endif %}
-      </label>
-      {% endwith %}
-    {% endfor %}
+    {% if error %}
+      <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
+    {% endif %}
 
-    <div class="bn-actions">
-      <button type="submit">Continue</button>
+    {# Dynamic schema-driven fields #}
+    {% load dict_get %}
+    {% with details=state.details %}
+      {% for f in schema %}
+        <div class="d1-field">
+          {% if f.type != "checkbox" %}
+            <label for="id_{{ f.name }}">{{ f.label }}</label>
+          {% endif %}
+
+          {% if f.type == "number" %}
+            <input type="number" id="id_{{ f.name }}" name="{{ f.name }}"
+                   min="{{ f.min|default:'0' }}" step="{{ f.step|default:'1' }}"
+                   placeholder="{{ f.placeholder|default:'' }}"
+                   value="{{ details|get_item:f.name|default:'' }}">
+          {% elif f.type == "select" %}
+            <select id="id_{{ f.name }}" name="{{ f.name }}">
+              {% for opt in f.options %}
+                <option value="{{ opt.value }}"
+                  {% if opt.value|stringformat:"s" == details|get_item:f.name|stringformat:"s" %}selected{% endif %}>
+                  {{ opt.label }}
+                </option>
+              {% endfor %}
+            </select>
+          {% elif f.type == "checkbox" %}
+            {% with val=details|get_item:f.name|stringformat:"s"|lower %}
+              <label>
+                <input type="checkbox" name="{{ f.name }}" value="1"
+                      {% if val == '1' or val == 'true' or val == 'on' or val == 'yes' %}checked{% endif %}>
+                {{ f.label }}
+              </label>
+            {% endwith %}
+
+          {% elif f.type == "textarea" %}
+            <textarea id="id_{{ f.name }}" name="{{ f.name }}" placeholder="{{ f.placeholder|default:'' }}">{{ details|get_item:f.name|default:'' }}</textarea>
+          {% else %}
+            <input type="text" id="id_{{ f.name }}" name="{{ f.name }}"
+                   placeholder="{{ f.placeholder|default:'' }}"
+                   value="{{ details|get_item:f.name|default:'' }}">
+          {% endif %}
+
+          {% if f.help %}<small>{{ f.help }}</small>{% endif %}
+        </div>
+      {% empty %}
+        <!-- Fallback if no schema -->
+        <div class="d1-field">
+          <label for="id_area_sqm">Approx. area (sqm)</label>
+          <input type="number" id="id_area_sqm" name="area_sqm" placeholder="e.g., 200"
+                 value="{{ details.area_sqm|default:'' }}">
+        </div>
+        <div class="d1-field">
+          <label for="id_rooms">Rooms</label>
+          <input type="number" id="id_rooms" name="rooms" placeholder="e.g., 6"
+                 value="{{ details.rooms|default:'' }}">
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Always include other requirements -->
+    <div class="d1-field">
+      <label for="id_other_reqs">Other requirements</label>
+      <textarea id="id_other_reqs" name="other_reqs"
+                placeholder="Access notes, special products, fragile surfaces, etc.">{{ state.details.other_reqs|default:'' }}</textarea>
+    </div>
+
+    <!-- Hidden: estimator total (cents) -->
+    <input type="hidden" name="price_estimate" id="price_estimate"
+           value="{{ state.price_estimate|default:'' }}">
+
+    <div class="d1-actions">
+      <a class="btn outline" href="{% url 'booknow_service' %}">Back</a>
+      <button class="btn" type="submit">Continue</button>
     </div>
   </form>
 </div>
+
+{% if estimator_enabled %}
+  <!-- Floating estimator -->
+  <div class="est-float" id="est-float-details" aria-live="polite">
+    <h4>Estimated Price</h4>
+    <div class="est-row"><span>Base</span><span id="d-base">$0.00</span></div>
+    <div id="d-mods"></div>
+    <div class="est-row"><span>Frequency adj.</span><span id="d-disc">$0.00</span></div>
+    <div class="est-row est-total"><span>Total (est.)</span><span id="d-total">$0.00</span></div>
+    <div class="est-note">Subject to site condition & scope.</div>
+  </div>
+
+  <script>
+  (function(){
+    // Provided by view: estimator_rules = {"base": cents, "rates": {...}, "extras": {...}}
+    const rules = {{ estimator_rules|safe }};
+    const fmtC = c => "$" + (c/100).toFixed(2);
+
+    const baseEl = document.getElementById("d-base");
+    const discEl = document.getElementById("d-disc");
+    const totEl  = document.getElementById("d-total");
+    const modsEl = document.getElementById("d-mods");
+    const hidden = document.getElementById("price_estimate");
+
+    function readForm(){
+      const data = {};
+      document.querySelectorAll('.d1-form input, .d1-form select, .d1-form textarea').forEach(el=>{
+        if(!el.name) return;
+        if(el.type==="checkbox"){ data[el.name] = el.checked ? 1 : 0; }
+        else if(el.type==="number"){
+          const v = parseFloat(el.value||"0");
+          data[el.name] = isNaN(v)?0:v;
+        } else { data[el.name] = el.value || ""; }
+      });
+      return data;
+    }
+
+    function compute(){
+      let base = rules.base || 0;
+      // If rules don't define base, seed from service base (cached in dollars)
+      if(!base){
+        try{
+          const d = parseFloat(localStorage.getItem("bn_base_price")||"0")||0;
+          if(d>0) base = Math.round(d * 100);
+        }catch(_){}
+      }
+
+      let subtotal = base;
+      let modsHtml = "";
+
+      const details = readForm();
+      const rates = rules.rates || {};
+      Object.keys(rates).forEach(k=>{
+        const unit = rates[k];                   // cents per unit
+        const qty  = parseFloat(details[k]||0);  // number typed
+        if(qty>0){
+          const amt = Math.round(unit * qty);
+          subtotal += amt;
+          modsHtml += `<div class="est-row"><span>${k.replaceAll('_',' ')} × ${qty}</span><span>${fmtC(amt)}</span></div>`;
+        }
+      });
+
+      const extras = rules.extras || {};
+      Object.keys(extras).forEach(k=>{
+        if(details[k]===1 || details[k]==="1" || details[k]===true){
+          const amt = extras[k];
+          subtotal += amt;
+          modsHtml += `<div class="est-row"><span>${k.replaceAll('_',' ')}</span><span>${fmtC(amt)}</span></div>`;
+        }
+      });
+
+      const disc = 0; // frequency handled on Schedule step
+      const total = subtotal + disc;
+
+      baseEl.textContent = fmtC(base);
+      discEl.textContent = (disc>=0? "": "-") + fmtC(Math.abs(disc));
+      totEl.textContent  = fmtC(total);
+      modsEl.innerHTML   = modsHtml || `<div class="est-row"><span>Adjustments</span><span>$0.00</span></div>`;
+
+      hidden.value = total; // persist cents
+      try{ localStorage.setItem("bn_price_estimate", String(total)); }catch(_){}
+    }
+
+    document.querySelector(".d1-form").addEventListener("input", compute);
+    compute();
+  })();
+  </script>
+{% endif %}
 
 {% endwith %}{% endblock %}

@@ -11,4 +11,3 @@ urlpatterns = [
     path("thank-you/", views.thank_you, name="booknow_thank_you"),
 ]
 
-

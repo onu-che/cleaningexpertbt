@@ -1,0 +1,19 @@
+<!doctype html><html><body style="font-family:system-ui,Segoe UI,Arial,sans-serif;">
+  <p>Hi {{ booking.name|default:"there" }},</p>
+
+  <p>Thanks for booking <strong>{{ booking.service.name }}</strong> with Cleaning Expert.</p>
+
+  <h3>Summary</h3>
+  <ul>
+    <li><strong>Preferred:</strong> {{ booking.preferred_date }} at {{ booking.preferred_time }}</li>
+    <li><strong>Frequency:</strong> {{ booking.get_frequency_display|default:booking.frequency }}</li>
+    <li><strong>Estimated price:</strong> {{ estimate_display }}</li>
+  </ul>
+
+  <h3>What happens next</h3>
+  <p>Our team will confirm availability and final pricing by email or phone shortly.</p>
+
+  <p>If anything needs updating, simply reply to this email.</p>
+
+  <p>Thanks,<br>Cleaning Expert</p>
+</body></html>

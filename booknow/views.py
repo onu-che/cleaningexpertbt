@@ -8,18 +8,14 @@ from datetime import datetime, date
 from zoneinfo import ZoneInfo
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-
-
+import logging
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 
 
 
 SESSION_KEY = "booknow"
 
-
-
-import logging
-from django.core.mail import send_mail
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +31,60 @@ def safe_send_mail(subject, message, to_list):
     except Exception as e:
         logger.exception("Email send failed: %s", e)
         return False
+# --- Live Price Estimator Rules (all in cents) ---
+ESTIMATOR_RULES = {
+    "gym-cleaning": {
+        "base": 15000,   # $150 base
+        "rates": {"area_sqm": 150, "equipment_count": 300, "showers": 500},
+        "extras": {}
+    },
+    "medical-cleaning": {
+        "base": 18000,
+        "rates": {"consult_rooms": 1200, "treatment_rooms": 1500, "area_sqm": 150},
+        "extras": {}
+    },
+    "pub-cleaning": {
+        "base": 14000,
+        "rates": {"area_sqm": 140, "bars": 1000},
+        "extras": {}
+    },
+    "strata-cleaning": {
+        "base": 16000,
+        "rates": {"common_areas": 1200, "levels": 2000},
+        "extras": {}
+    },
+    "post-construction": {
+        "base": 20000,
+        "rates": {"area_sqm": 200, "rooms": 1200},
+        "extras": {}
+    },
+    "residential-cleaning": {
+        "base": 11000,
+        "rates": {"bedrooms": 1500, "bathrooms": 2500, "area_sqm": 100},
+        "extras": {"oven": 3000, "windows": 3000}
+    },
+    "end-of-lease-cleaning": {
+        "base": 18000,
+        "rates": {"bedrooms": 2000, "bathrooms": 3000, "area_sqm": 150},
+        "extras": {"oven": 3000, "windows": 3000, "carpet": 2500}
+    },
+    "laundry-fold-ironing": {
+        "base": 8000,
+        "rates": {"laundry_bags": 3000, "iron_items": 200},
+        "extras": {}
+    },
+    "child-care-centre": {
+        "base": 17000,
+        "rates": {"rooms": 1500, "area_sqm": 150},
+        "extras": {}
+    },
+    # default if slug not matched
+    "_default": {"base": 10000, "rates": {}, "extras": {}}
+}
+
+def _estimator_for(service_slug: str):
+    """Return estimator config for given service slug."""
+    return ESTIMATOR_RULES.get(service_slug, ESTIMATOR_RULES["_default"])
 
 
 # ---- Dynamic details schemas (data-driven Details step) ----
@@ -163,6 +213,11 @@ def _clear_state(request):
         del request.session[SESSION_KEY]
 
 
+def _aud(cents: int | None) -> str:
+    try:
+        return f"${int(cents)/100:,.2f}"
+    except Exception:
+        return ""
 
 
 # Small helper to pick the details-section key from the slug
@@ -222,39 +277,54 @@ def details(request):
     if not state.get("service_id"):
         return redirect("booknow_service")
 
-    # NEW: pick schema by the selected service slug (we stored this in the service selection step)
-    schema = _details_schema_for_slug(state.get("service_slug",""))
+    service = get_object_or_404(Service, pk=state["service_id"])
+    schema = _details_schema_for_slug(state.get("service_slug", ""))
 
     if request.method == "POST":
         details_payload = {}
         for k, v in request.POST.items():
-            if k in {"csrfmiddlewaretoken"}:
+            if k in {"csrfmiddlewaretoken", "price_estimate"}:
                 continue
-            details_payload[k] = v.strip()
+            details_payload[k] = (v or "").strip()
+
+        # persist details
         state["details"] = details_payload
+
+        # persist estimate (cents) if present
+        pe = request.POST.get("price_estimate")
+        if pe and pe.isdigit():
+            state["price_estimate"] = int(pe)
+
         _save_state(request, state)
         return redirect("booknow_schedule")
 
-    return render(request, "booknow/details.html", {
-        "state": state, "current_step": "details",
+    ctx = {
         "schema": schema,
-    })
-
+        "state": state,
+        "service": service,
+        "current_step": "details",
+        "estimator_enabled": getattr(settings, "ENABLE_ESTIMATOR", False),
+        "service_slug": service.slug,
+        "estimator_rules": _estimator_for(service.slug),
+    }
+    return render(request, "booknow/details.html", ctx)
 
 
 # 3) Schedule: date, time, frequency
 def schedule(request):
     state = _get_state(request)
-    if not state.get("service_id"):
+    service_id = state.get("service_id")
+    if not service_id:
         return redirect("booknow_service")
 
-    ctx = {"state": state, "current_step": "schedule"}
+    service = get_object_or_404(Service, pk=service_id)
 
     if request.method == "POST":
-        preferred_date = (request.POST.get("preferred_date") or "").strip()
-        preferred_time = (request.POST.get("preferred_time") or "").strip()
-        frequency = (request.POST.get("frequency") or "one_time").strip()
-        access_window = (request.POST.get("access_window") or "").strip()
+        # read from POST into locals for validation
+        preferred_date = request.POST.get("preferred_date", "").strip()
+        preferred_time = request.POST.get("preferred_time", "").strip()
+        frequency      = request.POST.get("frequency", "one_time").strip()
+        access_window  = request.POST.get("access_window", "").strip()  # optional if you add this field
 
         # Validate
         error = None
@@ -272,33 +342,55 @@ def schedule(request):
                 error = "Please enter a valid time."
 
         if error:
-            ctx["error"] = error
-            ctx["sticky"] = {
-                "preferred_date": preferred_date,
-                "preferred_time": preferred_time,
-                "frequency": frequency,
-                "access_window": access_window,
+            ctx = {
+                "state": state,
+                "service": service,
+                "current_step": "schedule",
+                "estimator_enabled": getattr(settings, "ENABLE_ESTIMATOR", False),
+                "service_slug": service.slug,
+                "estimator_rules": _estimator_for(service.slug),
+                "error": error,
+                "sticky": {
+                    "preferred_date": preferred_date,
+                    "preferred_time": preferred_time,
+                    "frequency": frequency,
+                    "access_window": access_window,
+                },
             }
             return render(request, "booknow/schedule.html", ctx)
 
-        # Save validated schedule into session/state
+        # Save validated schedule + estimate into session
         state.update({
             "preferred_date": preferred_date,
             "preferred_time": preferred_time,
             "frequency": frequency or "one_time",
             "access_window": access_window,
         })
+
+        pe = request.POST.get("price_estimate")
+        if pe and pe.isdigit():
+            state["price_estimate"] = int(pe)
+
         _save_state(request, state)
         return redirect("booknow_contact")
 
-    # GET — sticky if present
-    ctx["sticky"] = {
-        "preferred_date": state.get("preferred_date", ""),
-        "preferred_time": state.get("preferred_time", ""),
-        "frequency": state.get("frequency", "one_time"),
-        "access_window": state.get("access_window", ""),
+    # GET — build ctx
+    ctx = {
+        "state": state,
+        "service": service,
+        "current_step": "schedule",
+        "estimator_enabled": getattr(settings, "ENABLE_ESTIMATOR", False),
+        "service_slug": service.slug,
+        "estimator_rules": _estimator_for(service.slug),
+        "sticky": {
+            "preferred_date": state.get("preferred_date", ""),
+            "preferred_time": state.get("preferred_time", ""),
+            "frequency": state.get("frequency", "one_time"),
+            "access_window": state.get("access_window", ""),
+        },
     }
     return render(request, "booknow/schedule.html", ctx)
+
 
 
 # 4) Contact: name, email, phone, address
@@ -400,9 +492,40 @@ def _make_customer_email_body(b: Booking):
         "cleaningexpertbt.com.au\n"
     )
 
+def _send_booking_emails(ctx: dict):
+    """Send admin + customer emails for a new booking, including estimate."""
+    booking = ctx["booking"]
+    estimate = ctx["estimate_display"]
+
+    from_addr = getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@example.com")
+
+    # --- Admin email ---
+    subject_admin = f"[New Booking] {booking.service.name} on {booking.preferred_date} — {estimate or ''}".strip()
+    body_admin_txt = render_to_string("booknow/emails/booking_admin.txt", ctx)
+    body_admin_html = render_to_string("booknow/emails/booking_admin.html", ctx)
+    to_admin = [getattr(settings, "BOOKING_ADMIN_EMAIL", from_addr)]
+    msg = EmailMultiAlternatives(subject_admin, body_admin_txt, from_addr, to_admin)
+    msg.attach_alternative(body_admin_html, "text/html")
+    msg.send(fail_silently=False)
+
+    # --- Customer email ---
+    if booking.email:
+        subject_cust = f"Booking received — {booking.service.name} ({estimate or 'No estimate'})"
+        body_cust_txt = render_to_string("booknow/emails/booking_customer.txt", ctx)
+        body_cust_html = render_to_string("booknow/emails/booking_customer.html", ctx)
+        msg2 = EmailMultiAlternatives(subject_cust, body_cust_txt, from_addr, [booking.email])
+        msg2.attach_alternative(body_cust_html, "text/html")
+        msg2.send(fail_silently=False)
+
+
 def _create_booking_from_session(state):
     svc = Service.objects.get(pk=state["service_id"])
     contact = state.get("contact", {})
+
+    # Parse date/time safely (you already validated earlier)
+    pd = _parse_date(state["preferred_date"])
+    pt = _parse_time(state["preferred_time"])
+
     b = Booking.objects.create(
         service=svc,
         name=contact.get("name",""),
@@ -413,14 +536,14 @@ def _create_booking_from_session(state):
         state=contact.get("state",""),
         postcode=contact.get("postcode",""),
         details=state.get("details", {}),
-        preferred_date=_parse_date(state["preferred_date"]),
-        preferred_time=_parse_time(state["preferred_time"]),
+        preferred_date=pd,
+        preferred_time=pt,
         frequency=state.get("frequency","one_time"),
         status=Booking.ST_NEW,
-
+        price_estimate=state.get("price_estimate"),   # <-- save cents
     )
-
     return b
+
 
 
 
@@ -441,28 +564,33 @@ def review(request):
         # 1) Create booking in DB
         booking = _create_booking_from_session(state)
 
-        # 2) Send emails (SMTP in prod, console in dev)
-        admin_to = [getattr(settings, "BOOKING_ADMIN_EMAIL", "admin@example.com")]
-        safe_send_mail(
-            _make_admin_email_subject(booking),
-            _make_admin_email_body(booking),
-            admin_to
-        )
-        safe_send_mail(
-            _make_customer_email_subject(booking),
-            _make_customer_email_body(booking),
-            [booking.email]
-        )
+        # After: booking = _create_booking_from_session(state)
+        ctx = {
+            "booking": booking,
+            "estimate_display": _aud(booking.price_estimate) if booking.price_estimate else "—",
+        }
 
+        _send_booking_emails(ctx)  # (create this helper below)
+
+
+        # 2) Send emails (SMTP in prod, console in dev) was removed
+
+# ===============================================================
         # 3) Clear session
         _clear_state(request)
 
         # 4) Redirect
         return redirect("booknow_thank_you")
 
-    return render(request, "booknow/review.html", {"state": state, "current_step": "review"})
-
-
+    # GET — include service + estimator flag so template can show the saved estimate
+    service = get_object_or_404(Service, pk=state["service_id"])
+    ctx = {
+        "state": state,
+        "service": service,
+        "current_step": "review",
+        "estimator_enabled": getattr(settings, "ENABLE_ESTIMATOR", False),
+    }
+    return render(request, "booknow/review.html", ctx)
 
 def thank_you(request):
     # state cleared after submit; just render a friendly message
@@ -474,3 +602,4 @@ def thank_you(request):
 
 
 # =========================================
+

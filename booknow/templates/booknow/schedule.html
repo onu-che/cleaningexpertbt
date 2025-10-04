@@ -2,148 +2,172 @@
 {% block bn_content %}{% with current_step="schedule" %}
 
 <style>
-  /* ---------- Schedule Step Internal Styles ---------- */
+  .sch-container{max-width:960px;margin:0 auto;padding:0 16px;}
+  .bn-steps{margin-bottom:14px;}
+  .bn-steps ol{display:flex;justify-content:center;}
 
-  /* Narrow, centered container for stepper + content */
-  .sch-container{
-    max-width: 760px; /* adjust to 820/900px if you prefer */
-    margin: 0 auto;
-    padding: 0 16px;
+  .sch-title{text-align:center;margin:.25rem 0 .5rem;}
+  .sch-sub{text-align:center;color:#5b6b7a;font-size:14.5px;margin-bottom:.75rem;}
+
+  .sch-card{background:#fff;border:1px solid #e8edf3;border-radius:12px;padding:16px;}
+  .sch-form{display:grid;gap:14px;}
+  .sch-row{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media (max-width:720px){.sch-row{grid-template-columns:1fr;}}
+
+  label{display:block;font-weight:700;color:#0b1520;margin-bottom:4px;}
+  input[type="date"], input[type="time"], select{
+    width:100%;border:1px solid #dbe4ee;border-radius:10px;padding:.6rem .7rem;font-size:14.5px;background:#fff;
   }
 
-  /* Center stepper pills */
-  .bn-steps{ margin-bottom: 14px; }
-  .bn-steps ol{ display:flex; justify-content:center; }
+  .bn-error{background:#ffe9e9;color:#b42318;padding:.6rem .75rem;border-radius:10px;border:1px solid #ffd0d0;margin-bottom:10px;}
 
-  /* Title + subtitle */
-  .sch-title{ text-align:center; margin:.25rem 0 .5rem; }
-  .sch-sub{ text-align:center; color:#5b6b7a; font-size:14.5px; margin-bottom:.75rem; }
+  .bn-actions{display:flex;justify-content:space-between;gap:10px;margin-top:.75rem;}
+  .btn{border:1px solid #0e3f68;background:#0e3f68;color:#fff;border-radius:12px;padding:.7rem 1.1rem;font-weight:800;cursor:pointer;}
+  .btn.outline{background:#fff;color:#0e3f68;}
 
-  /* Card/form */
-  .sch-form{ background:#fff; border:1px solid #e8edf3; border-radius:12px; padding:16px; }
-  .sch-form label{ display:flex; flex-direction:column; gap:.35rem; margin:.5rem 0; font-weight:600; color:#0b1520; }
-  .sch-form input,.sch-form select{
-    border:1px solid #e8edf3; border-radius:10px; padding:.6rem .7rem; font-size:15px;
+  /* Floating estimator */
+  .est-float{
+    position:fixed;top:84px;right:16px;z-index:50;width:280px;background:#fff;
+    border:1px solid #e8edf3;border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(14,63,104,.10);
   }
-  .sch-form input:focus,.sch-form select:focus{
-    outline:0; box-shadow:0 0 0 3px rgba(14,63,104,.25); border-color:#0e3f68;
+  .est-float h4{margin:0 0 .35rem;font-size:15.5px;color:#0b1520;}
+  .est-row{display:flex;justify-content:space-between;font-size:14.5px;margin:.2rem 0;}
+  .est-total{font-weight:800;font-size:18px;border-top:1px dashed #e8edf3;margin-top:.5rem;padding-top:.5rem;}
+  .est-note{font-size:12.5px;color:#5b6b7a;}
+  @media (max-width:900px){
+    .est-float{position:fixed;inset:auto 8px 12px 8px;width:auto;padding:10px;border-radius:12px;}
   }
-
-  /* Frequency pill radios */
-  .sch-freq{ display:flex; flex-wrap:wrap; gap:8px; margin:.5rem 0 1rem; }
-  .sch-pill{
-    display:inline-flex; align-items:center; gap:8px;
-    border:1px solid #e8edf3; border-radius:999px; padding:.5rem .8rem; cursor:pointer; user-select:none;
-    color:#0b1520; background:#fff; transition:box-shadow .12s ease, border-color .12s ease, background .12s ease;
-  }
-  .sch-pill input{ appearance:none; width:0; height:0; margin:0; }
-  .sch-pill[data-selected="1"]{ background:#0e3f68; color:#fff; border-color:#0e3f68; box-shadow:0 0 0 3px rgba(14,63,104,.20); }
-
-  /* Actions */
-  .bn-actions{ margin-top:12px; display:flex; justify-content:flex-end; gap:8px; }
-  .bn-actions button{
-    background:#0e3f68; color:#fff; border:none; padding:.72rem 1rem;
-    border-radius:12px; font-weight:700; cursor:pointer;
-    transition:filter .12s ease, transform .05s ease;
-  }
-  .bn-actions button:hover{ filter:brightness(.96); }
-  .bn-actions button:active{ transform:translateY(1px); }
-  .bn-actions button:focus-visible{ box-shadow:0 0 0 3px rgba(14,63,104,.25); }
-
-  /* Error banner */
-  .bn-error{ background:#ffe9e9; color:#b42318; padding:.6rem .75rem; border-radius:10px; border:1px solid #ffd0d0; margin-bottom:10px; }
 </style>
 
 <div class="sch-container">
-  <h1 class="sch-title">Choose Date & Time</h1>
-  <p class="sch-sub">Pick a convenient date and time. You can adjust frequency anytime.</p>
+  <h1 class="sch-title">Choose your preferred schedule</h1>
+  <p class="sch-sub">Pick a date, time, and how often you need cleaning. The estimate updates instantly.</p>
 
-  <form method="post" class="sch-form" novalidate>
+  <form method="post" class="sch-card sch-form" novalidate>
     {% csrf_token %}
 
     {% if error %}
       <div class="bn-error" role="alert" aria-live="polite">{{ error }}</div>
     {% endif %}
 
-    <label>Date
-      <input type="date" name="preferred_date" value="{{ sticky.preferred_date|default:'' }}" required>
-    </label>
-
-    <label>Time
-      <input type="time" name="preferred_time" step="300" list="bn-time-slots"
-             value="{{ sticky.preferred_time|default:'' }}" required>
-      <datalist id="bn-time-slots">
-        <option value="08:00"><option value="08:30"><option value="09:00">
-        <option value="09:30"><option value="10:00"><option value="10:30">
-        <option value="11:00"><option value="11:30"><option value="12:00">
-        <option value="12:30"><option value="13:00"><option value="13:30">
-        <option value="14:00"><option value="14:30"><option value="15:00">
-        <option value="15:30"><option value="16:00"><option value="16:30">
-        <option value="17:00">
-      </datalist>
-      <small>Tip: pick any time or choose a preset.</small>
-    </label>
-
-    <fieldset>
-      <legend>Frequency</legend>
-      <div class="sch-freq" id="sch-freq">
-        {% with f=sticky.frequency|default:"one_time" %}
-          <label class="sch-pill" data-selected="{% if f == 'one_time' %}1{% else %}0{% endif %}">
-            <input type="radio" name="frequency" value="one_time" {% if f == "one_time" %}checked{% endif %}>
-            One-time
-          </label>
-          <label class="sch-pill" data-selected="{% if f == 'weekly' %}1{% else %}0{% endif %}">
-            <input type="radio" name="frequency" value="weekly" {% if f == "weekly" %}checked{% endif %}>
-            Weekly
-          </label>
-          <label class="sch-pill" data-selected="{% if f == 'fortnightly' %}1{% else %}0{% endif %}">
-            <input type="radio" name="frequency" value="fortnightly" {% if f == "fortnightly" %}checked{% endif %}>
-            Fortnightly
-          </label>
-          <label class="sch-pill" data-selected="{% if f == 'monthly' %}1{% else %}0{% endif %}">
-            <input type="radio" name="frequency" value="monthly" {% if f == "monthly" %}checked{% endif %}>
-            Monthly
-          </label>
-        {% endwith %}
+    <div class="sch-row">
+      <div>
+        <label for="id_preferred_date">Preferred date</label>
+        <input type="date" id="id_preferred_date" name="preferred_date"
+               value="{{ state.preferred_date|default:'' }}">
       </div>
-    </fieldset>
+      <div>
+        <label for="id_preferred_time">Preferred time</label>
+        <input type="time" id="id_preferred_time" name="preferred_time"
+               value="{{ state.preferred_time|default:'' }}">
+      </div>
+    </div>
 
-    <label>Preferred access window (optional)
-      <input type="text" name="access_window"
-            placeholder="e.g., 8–10am, after school run, or 5–7pm"
-            value="{{ sticky.access_window|default:'' }}">
-      <small>Tell us a window so we can plan arrival and team allocation.</small>
-    </label>
+    <div>
+      <label for="id_frequency">Frequency</label>
+      <select id="id_frequency" name="frequency">
+        <option value="one_time"     {% if state.frequency == 'one_time' %}selected{% endif %}>One-time</option>
+        <option value="weekly"       {% if state.frequency == 'weekly' %}selected{% endif %}>Weekly (-15%)</option>
+        <option value="fortnightly"  {% if state.frequency == 'fortnightly' %}selected{% endif %}>Fortnightly (-10%)</option>
+        <option value="monthly"      {% if state.frequency == 'monthly' %}selected{% endif %}>Monthly (-5%)</option>
+      </select>
+    </div>
+
+    <!-- Hidden: estimator total in cents -->
+    <input type="hidden" name="price_estimate" id="price_estimate" value="{{ state.price_estimate|default:'' }}">
 
     <div class="bn-actions">
-      <button type="submit">Continue</button>
+      <a class="btn outline" href="{% url 'booknow_details' %}">Back</a>
+      <button class="btn" type="submit">Continue</button>
     </div>
   </form>
 </div>
 
-<script>
-  // Respect today's date (client nicety; server already validates)
-  (function(){
-    const input = document.querySelector('input[name="preferred_date"]');
-    if (!input) return;
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth()+1).padStart(2,'0');
-    const d = String(today.getDate()).padStart(2,'0');
-    input.min = `${y}-${m}-${d}`;
-  })();
+{% if estimator_enabled %}
+  <!-- Floating estimator (includes frequency adjustment) -->
+  <div class="est-float" id="est-float-schedule" aria-live="polite">
+    <h4>Estimated Price</h4>
+    <div class="est-row"><span>Base</span><span id="s-base">$0.00</span></div>
+    <div id="s-mods"></div>
+    <div class="est-row"><span>Frequency adj.</span><span id="s-disc">$0.00</span></div>
+    <div class="est-row est-total"><span>Total (est.)</span><span id="s-total">$0.00</span></div>
+    <div class="est-note">You can change this later on Review.</div>
+  </div>
 
-  // Toggle pill selected style when radios change
+  <script>
   (function(){
-    const wrap = document.getElementById('sch-freq'); if(!wrap) return;
-    wrap.addEventListener('change', function(e){
-      if(e.target && e.target.name === 'frequency'){
-        wrap.querySelectorAll('.sch-pill').forEach(p => p.dataset.selected = '0');
-        const lbl = e.target.closest('.sch-pill');
-        if (lbl) lbl.dataset.selected = '1';
+    // From view: estimator_rules (cents) + details (numbers typed on Details step)
+    const rules = {{ estimator_rules|safe }};
+    const details = {{ state.details|default:"{}"|safe }};
+
+    const fmtC = c => "$" + (c/100).toFixed(2);
+    const freqMap = {"one_time":0, "weekly":-0.15, "fortnightly":-0.10, "monthly":-0.05};
+
+    const baseEl=document.getElementById("s-base"),
+          discEl=document.getElementById("s-disc"),
+          totEl=document.getElementById("s-total"),
+          modsEl=document.getElementById("s-mods"),
+          hidden=document.getElementById("price_estimate"),
+          freqSel=document.getElementById("id_frequency");
+
+    function compute(){
+      // Resolve base (rules or cached from service step)
+      let base = rules.base || 0;
+      if(!base){
+        try{
+          const d = parseFloat(localStorage.getItem("bn_base_price")||"0")||0;
+          if(d>0) base = Math.round(d*100);
+        }catch(_){}
       }
-    });
+
+      let subtotal = base;
+      let modsHtml = "";
+
+      // per-field rates
+      const rates = rules.rates || {};
+      Object.keys(rates).forEach(k=>{
+        const unit = rates[k];                          // cents per unit
+        const qty  = parseFloat(details[k] || 0);       // from Details (session)
+        if(qty>0){
+          const amt = Math.round(unit * qty);
+          subtotal += amt;
+          modsHtml += `<div class="est-row"><span>${k.replaceAll('_',' ')} × ${qty}</span><span>${fmtC(amt)}</span></div>`;
+        }
+      });
+
+      // extras (if any were set on Details—1/0)
+      const extras = rules.extras || {};
+      Object.keys(extras).forEach(k=>{
+        const on = (details[k]===1 || details[k]==="1" || details[k]===true);
+        if(on){
+          const amt = extras[k];
+          subtotal += amt;
+          modsHtml += `<div class="est-row"><span>${k.replaceAll('_',' ')}</span><span>${fmtC(amt)}</span></div>`;
+        }
+      });
+
+      // frequency discount
+      const freq = (freqSel?.value || "one_time");
+      const discRate = freqMap[freq] || 0;
+      const disc = Math.round(subtotal * discRate);
+      const total = subtotal + disc;
+
+      // render
+      baseEl.textContent = fmtC(base);
+      discEl.textContent = (disc>=0? "" : "-") + fmtC(Math.abs(disc));
+      totEl.textContent  = fmtC(total);
+      modsEl.innerHTML   = modsHtml || `<div class="est-row"><span>Adjustments</span><span>$0.00</span></div>`;
+
+      // persist for POST (cents) + continuity
+      hidden.value = total;
+      try{ localStorage.setItem("bn_price_estimate", String(total)); }catch(_){}
+    }
+
+    // recompute when changing frequency/date/time (frequency affects price, others don’t)
+    document.querySelector(".sch-form").addEventListener("change", compute);
+    compute();
   })();
-</script>
+  </script>
+{% endif %}
 
 {% endwith %}{% endblock %}

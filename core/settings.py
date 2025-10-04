@@ -15,7 +15,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 # Hosts
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    ".onrender.com,cleaning-expert-bt.onrender.com,cleaningexpertbt.com.au,www.cleaningexpertbt.com.au,127.0.0.1,localhost"
+    ".onrender.com,cleaning-expert-bt.onrender.com,cleaningexpertbt.com.au,www.cleaningexpertbt.com.au,127.0.0.1,localhost,192.168.0.128"
 ).split(",")
 
 CSRF_TRUSTED_ORIGINS = [
@@ -24,6 +24,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.cleaningexpertbt.com.au",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "http://192.168.0.128",
 
 ]
 

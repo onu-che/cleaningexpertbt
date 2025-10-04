@@ -39,6 +39,7 @@ class Booking(models.Model):
         (FREQ_WEEKLY, "Weekly"),
         (FREQ_FN, "Fortnightly"),
         (FREQ_MONTHLY, "Monthly"),
+
     ]
 
     ST_NEW = "new"
@@ -84,7 +85,8 @@ class Booking(models.Model):
         help_text="e.g., 8–10am window or 'after 5pm'."
     )
 
-
+    # Estimated price in cents (so $123.45 = 12345)
+    price_estimate = models.IntegerField(null=True, blank=True, help_text="Estimated price in cents")
 
     # Tracking
     created_at = models.DateTimeField(default=timezone.now, editable=False)

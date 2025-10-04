@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import ServiceCategory, Service, Booking
+from .templatetags.money import aud_cents
 
 @admin.register(ServiceCategory)
 class ServiceCategoryAdmin(admin.ModelAdmin):
@@ -22,12 +23,17 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ("id","service","name","email","preferred_date","preferred_time","frequency","status")
-    list_filter = ("status", "frequency", "service", "created_at")
-    search_fields = ("name", "email", "phone", "service__name", "suburb", "postcode")
+    list_display = ("id","service","name","email","preferred_date","frequency","status","price_estimate_display","created_at")
+    list_filter  = ("status","frequency","service","preferred_date")
+    search_fields = ("name","email","phone","service__name")
     date_hierarchy = "created_at"
     readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
+
+    def price_estimate_display(self, obj):
+        return aud_cents(obj.price_estimate) if obj.price_estimate is not None else ""
+    price_estimate_display.short_description = "Estimate"
+
 
     fieldsets = (
         ("Service", {"fields": ("service","status","price_estimate")}),
@@ -37,5 +43,8 @@ class BookingAdmin(admin.ModelAdmin):
         ("Details", {"fields": ("details", "parking_notes")}),
         ("Tracking", {"fields": ("created_at","updated_at")}),
     )
+
+
+
 
 

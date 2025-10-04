@@ -1,0 +1,22 @@
+New booking received
+
+Service: {{ booking.service.name }}
+Preferred: {{ booking.preferred_date }} at {{ booking.preferred_time }}
+Frequency: {{ booking.get_frequency_display|default:booking.frequency }}
+
+Customer:
+- Name: {{ booking.name }}
+- Email: {{ booking.email }}
+- Phone: {{ booking.phone }}
+
+Address:
+- {{ booking.address_line }}
+- {{ booking.suburb }}, {{ booking.state }} {{ booking.postcode }}
+
+Details (JSON):
+{{ booking.details|default:"{}" }}
+
+Estimated price: {{ estimate_display }}
+
+Status: {{ booking.get_status_display|default:booking.status }}
+Created: {{ booking.created_at }}

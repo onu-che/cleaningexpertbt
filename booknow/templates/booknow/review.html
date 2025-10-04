@@ -1,5 +1,7 @@
 {% extends "booknow/base_booknow.html" %}
 {% block bn_content %}{% with current_step="review" %}
+{% load money %}
+
 
 <style>
   /* ---------- Review Step Internal Styles ---------- */
@@ -65,6 +67,13 @@
   <div class="rev-summary">
     {% include "booknow/_summary.html" %}
   </div>
+
+  {% if state.price_estimate %}
+  <div style="text-align:center;margin:.75rem 0 1rem;font-weight:800;font-size:1.05rem;">
+    Estimated price: {{ state.price_estimate|aud_cents }}
+  </div>
+  {% endif %}
+
 
   <!-- Edit links -->
   <div class="rev-edit">
